@@ -308,3 +308,145 @@ VALUES
 (@app_id, '编辑者', 'editor', '可读写文档', 0, 1),
 (@app_id, '浏览者', 'viewer', '只能查看文档', 1, 1);
 
+-- 取出角色 id
+SET @role_admin = (
+    SELECT id FROM ny_roles WHERE app_id = @app_id AND role_key = 'admin'
+);
+SET @role_editor = (
+    SELECT id FROM ny_roles WHERE app_id = @app_id AND role_key = 'editor'
+);
+SET @role_viewer = (
+    SELECT id FROM ny_roles WHERE app_id = @app_id AND role_key = 'viewer'
+);
+
+
+-- ---------------------------------------------------------
+-- 插入角色
+-- admin  ：管理员
+-- editor ：编辑者
+-- viewer ：只读用户
+-- ---------------------------------------------------------
+INSERT INTO ny_permissions(
+    app_id,
+    perm_name,
+    perm_key,
+    resource_type,
+    owner_shortcut_enabled,
+    description,
+    status
+)
+VALUES
+(@app_id, '查看文档', 'document:read', 'document', 1, '允许读取文档, owner 可快捷通过', 1),
+(@app_id, '编辑文档', 'document:edit', 'document', 1, '允许编辑文档, owner 可快捷通过', 1),
+(@app_id, '发布文档', 'document:publish', 'document', 0, '允许发布文档, 但owner 不能直接快捷通过', 1),
+(@app_id, '删除文档', 'document:delete', 'document', 0, '允许删除文档, 必须依赖角色权限', 1),
+(@app_id, '授予角色', 'admin:grant_role', 'system', 0, '管理类权限，绝不能通过 owner 快捷放行', 1);
+
+-- 取出权限 id
+SET @perm_read = (
+    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'documnet:read'
+);
+SET @perm_edit = (
+    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'documnet:edit'
+);
+SET @perm_publish = (
+    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'documnet:publish'
+);
+SET @perm_delete = (
+    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'documnet:delete'
+);
+SET @perm_grant_role = (
+    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'admin:grant_role'
+);
+
+-- ---------------------------------------------------------
+-- 插入角色
+-- admin  ：管理员
+-- editor ：编辑者
+-- viewer ：只读用户
+-- ---------------------------------------------------------
+INSERT INTO ny_role_permissions(role_id, perm_id)
+VALUES
+(@role_admin, @perm_read),
+(@role_admin, @perm_edit),
+(@role_admin, @perm_publish),
+(@role_admin, @perm_delete),
+(@role_admin, @perm_grant_role),
+
+(@role_editor, @perm_read),
+(@role_editor, @perm_edit),
+(@role_editor, @perm_publish),
+
+(@role_viewer, @perm_read);
+
+-- ---------------------------------------------------------
+-- 给测试用户分配角色
+-- u9000 是管理员
+-- u1001 是编辑者
+-- u1002 是浏览者
+-- 注意：u3001 故意不分配任何角色
+-- 因为我们要用它来演示“无角色但作为 owner 仍可通过部分权限”
+-- ---------------------------------------------------------
+INSERT INTO ny_user_roles(app_id, app_user_id, role_id, granted_by)
+VALUES
+(@app_id, 'u9000', @role_admin, 'system'),
+(@app_id, 'u1001', @role_editor, 'system'),
+(@app_id, 'u1002', @role_viewer, 'system');
+
+-- ---------------------------------------------------------
+-- 插入资源数据
+-- 这些资源后面会用于演示 owner 快捷规则
+-- ---------------------------------------------------------
+INSERT INTO ny_resources(
+    app_id,
+    resource_type,
+    resource_id,
+    resource_name,
+    owner_user_id,
+    metadata_text,
+    status
+)
+VALUES
+(@app_id, 'document', 'doc_001', '新手指南', 'u1001', 'owner=u1001',1),
+(@app_id, 'document', 'doc_002', '产品周报', 'u1002', 'owner=u1002',1),
+(@app_id, 'document', 'doc_003', '个人草稿', 'u3001', 'owner=u3001',1),
+(@app_id, 'document', 'doc_004', '发布公告', 'u1002', 'owner=u1002',1),
+
+-- =========================================================
+-- 插入一条样例决策日志
+-- =========================================================
+INSERT INTO ny_decision_logs(
+    app_id,
+    app_code,
+    user_id,
+    perm_key,
+    resource_type,
+    resource_id,
+    allowed,
+    descision_source,
+    matched_roles,
+    matched_permissions,
+    owner_shortcut_used,
+    policy_version,
+    deny_code,
+    reason,
+    trance_text
+)
+VALUES
+(
+    @app_id,
+    'doc_center',
+    'u1001',
+    'document:edit',
+    'document',
+    'doc_001',
+    1,
+    'SEED',
+    'editor',
+    'document:edit',
+    0,
+    1,
+    '',
+    '样例日志：编辑者角色允许编辑文档',
+    'seed example'
+);
