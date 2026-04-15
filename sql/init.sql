@@ -44,7 +44,7 @@ CREATE TABLE ny_apps (
 
     description VARCHAR(255) DEFAULT '',
 
-    --状态：1表示启用，0表示禁用
+    -- 状态：1表示启用，0表示禁用
     status TINYINT NOT NULL DEFAULT 1,
 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -64,7 +64,7 @@ CREATE TABLE ny_policy_versions (
 
     app_id BIGINT NOT NULL,
 
-    --当前生效的版本号
+    -- 当前生效的版本号
     current_version INT NOT NULL DEFAULT 1,
 
     published_by VARCHAR(64) DEFAULT '',
@@ -98,7 +98,7 @@ CREATE TABLE ny_roles (
 
     is_default TINYINT NOT NULL DEFAULT 0,
 
-    status TINYINT NOT NULL DEFAULT,
+    status TINYINT NOT NULL DEFAULT 1,
 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
@@ -118,7 +118,7 @@ CREATE TABLE ny_roles (
 -- =========================================================
 CREATE TABLE ny_permissions (
 
-    id BIGINT PRIMAYR KEY AUTO_INCREMENT,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
     app_id BIGINT NOT NULL,
 
@@ -181,7 +181,7 @@ CREATE TABLE ny_user_roles (
 
     granted_by VARCHAR(64) DEFAULT '',
 
-    cretated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -252,7 +252,7 @@ CREATE TABLE ny_decision_logs (
 
     allowed TINYINT NOT NULL DEFAULT 0,
 
-    descision_source VARCHAR(32) NOT NULL DEFAULT 'DB',
+    decision_source VARCHAR(32) NOT NULL DEFAULT 'DB',
 
     matched_roles VARCHAR(255) DEFAULT '',
 
@@ -266,13 +266,13 @@ CREATE TABLE ny_decision_logs (
 
     reason VARCHAR(255) DEFAULT '',
 
-    trance_text TEXT,
+    trace_text TEXT,
 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     KEY idx_decision_app_time(app_id,created_at),
     KEY idx_decision_user_time(user_id,created_at),
-    KEY idx_decision_perm_time(perm_id,created_at)
+    KEY idx_decision_perm_time(perm_key,created_at)
 );
 
 -- =========================================================
@@ -344,16 +344,16 @@ VALUES
 
 -- 取出权限 id
 SET @perm_read = (
-    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'documnet:read'
+    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'document:read'
 );
 SET @perm_edit = (
-    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'documnet:edit'
+    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'document:edit'
 );
 SET @perm_publish = (
-    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'documnet:publish'
+    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'document:publish'
 );
 SET @perm_delete = (
-    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'documnet:delete'
+    SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'document:delete'
 );
 SET @perm_grant_role = (
     SELECT id FROM ny_permissions WHERE app_id = @app_id AND perm_key = 'admin:grant_role'
@@ -410,7 +410,7 @@ VALUES
 (@app_id, 'document', 'doc_001', '新手指南', 'u1001', 'owner=u1001',1),
 (@app_id, 'document', 'doc_002', '产品周报', 'u1002', 'owner=u1002',1),
 (@app_id, 'document', 'doc_003', '个人草稿', 'u3001', 'owner=u3001',1),
-(@app_id, 'document', 'doc_004', '发布公告', 'u1002', 'owner=u1002',1),
+(@app_id, 'document', 'doc_004', '发布公告', 'u1002', 'owner=u1002',1);
 
 -- =========================================================
 -- 插入一条样例决策日志
@@ -423,14 +423,14 @@ INSERT INTO ny_decision_logs(
     resource_type,
     resource_id,
     allowed,
-    descision_source,
+    decision_source,
     matched_roles,
     matched_permissions,
     owner_shortcut_used,
     policy_version,
     deny_code,
     reason,
-    trance_text
+    trace_text
 )
 VALUES
 (
