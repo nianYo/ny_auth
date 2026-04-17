@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package ny.auth;
+
+option cc_generic_services = true;
+
+// ======================================================
+// DenyCode
+// 作用：表示“为什么这次鉴权没有通过”
+// 注意：
+// 1. 不是所有请求失败都表示“系统异常”
+// 2. 很多时候只是业务上不允许
+// ======================================================
+enum DenyCode {
+
+    DENY_CODE_UNSPECIFIED = 0;
+
+    DENY_CODE_OK = 1;
+
+    DENY_CODE_INVALID_ARGUMENT = 2;
+
+    DENY_CODE_APP_NOT_FOUND = 3;
+
+    DENY_CODE_APP_DISABLED = 4;
+
+    DENY_CODE_PERMISSION_NOT_FOUND = 5;
+
+    DENY_CODE_RESOURCE_NOT_FOUND = 6;
+
+    DENY_CODE_USER_HAS_NO_ROLE = 7;
+
+    DENY_CODE_PERMISSION_DENIED = 8;
+
+    DENY_CODE_INTERNAL_ERROR = 9;
+}
+
+// ======================================================
+// DecisionSource
+// 作用：表示这次判权的数据主要来自哪里
+// ======================================================
+enum DecisionSource {
+
+    DECISION_SOURCE_UNSPECIFIED = 0;
+
+    DECISION_SOURCE_DB = 1;
+
+    DECISION_SOURCE_CACHE = 2;
+
+    DECISION_SOURCE_SEED = 3;
+}
+
+// ======================================================
+// DecisionTrace
+// 作用：返回更详细的可解释判权信息
+// ======================================================
+message DecisionTrace {
+
+    repeated string matched_roles = 1;
+
+    repeated string matched_permissions = 2;
+
+    bool owner_shortcut_used = 3;
+
+    int32 policy_version = 4;
+
+    DecisionSource decision_soure = 5;
+
+    string trace_text = 6;   
+}
+
+// ======================================================
+// CheckRequest
+// 作用：一次鉴权请求
+// ======================================================
+message CheckRequest {
+
+    string app_code = 1;
+
+    string user_id = 2;
+
+    string perm_key = 3;
+
+    string resource_type = 4;
+
+    string resource_id = 5;
+
+    string request_id = 6;
+}
+
+// ======================================================
+// CheckResponse
+// 作用：一次鉴权响应
+// ======================================================
+message CheckResponse {
+
+    bool allowed = 1;
+
+    string reason = 2;
+
+    repeated string current_roles = 3;
+
+    repeated string suggest_roles = 4;
+
+    DecisionTrace trace = 5;
+
+    DenyCode deny_code = 6;
+}
+
+// ======================================================
+// AuthService
+// 作用：V1 的中心化鉴权服务
+// ======================================================
+service AuthService {
+
+    rpc Check(CheckRequest) returns (CheckResponse);
+}
