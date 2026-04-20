@@ -250,7 +250,7 @@ DecisionEngine::UserPermSet DecisionEngine::loadUserPermissions (const std::stri
 
         if(cache_->Get(cache_key, user_permissions)) {
 
-            result.decision_source = DecisionSourceType::KCache;
+            result.decision_source = DecisionSourceType::kCache;
 
             return user_permissions;
         }
@@ -280,7 +280,7 @@ DecisionEngine::UserPermSet DecisionEngine::loadUserPermissions (const std::stri
 //   true  -> 已经放行，不需要继续走 RBAC
 //   false -> 没有通过 owner 规则，继续走 RBAC
 // ======================================================
-bool DecisionEngine::tyrOwnerShortcut(const DecisionRequest& request, DecisionResult& result) {
+bool DecisionEngine::tryOwnerShortcut(const DecisionRequest& request, DecisionResult& result) {
 
     if(request.resource_type.empty() || request.resource_id.empty()) {
         return false;
@@ -383,7 +383,7 @@ std::string DecisionEngine::joinStrings(const std::vector<std::string>& items) c
 // ======================================================
 std::string DecisionEngine::decisionSourceToString(DecisionSourceType source) const {
     switch(source) {
-        case DecisionSourceType::KCache:
+        case DecisionSourceType::kCache:
             return "CACHE";
         case DecisionSourceType::kDatabase:
             return "DB";

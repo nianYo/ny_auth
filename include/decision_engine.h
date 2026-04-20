@@ -1,9 +1,11 @@
 #ifndef NY_AUTH_DECISION_ENGINE_H
-#define NU_AUTH_DECISION_ENGINE_H
+#define NY_AUTH_DECISION_ENGINE_H
 
 #include <memory>
 
 #include <string>
+
+#include <vector>
 
 #include <unordered_set>
 
@@ -20,7 +22,7 @@ enum class DecisionSourceType {
 
     kUnknown = 0,
 
-    KCache = 1,
+    kCache = 1,
 
     kDatabase = 2
 };
@@ -99,7 +101,7 @@ private:
 
     UserPermSet loadUserPermissions(const std::string& app_code, const std::string& user_id, int policy_version, DecisionResult& result);
 
-    bool tyrOwnerShortcut(const DecisionRequest& request, DecisionResult& result);
+    bool tryOwnerShortcut(const DecisionRequest& request, DecisionResult& result);
 
     void evaluateByRbac(const DecisionRequest& request, const UserPermSet& user_permissions, DecisionResult& result);
 
