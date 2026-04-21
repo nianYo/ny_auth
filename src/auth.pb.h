@@ -104,13 +104,12 @@ enum DecisionSource : int {
   DECISION_SOURCE_UNSPECIFIED = 0,
   DECISION_SOURCE_DB = 1,
   DECISION_SOURCE_CACHE = 2,
-  DECISION_SOURCE_SEED = 3,
   DecisionSource_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   DecisionSource_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool DecisionSource_IsValid(int value);
 constexpr DecisionSource DecisionSource_MIN = DECISION_SOURCE_UNSPECIFIED;
-constexpr DecisionSource DecisionSource_MAX = DECISION_SOURCE_SEED;
+constexpr DecisionSource DecisionSource_MAX = DECISION_SOURCE_CACHE;
 constexpr int DecisionSource_ARRAYSIZE = DecisionSource_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* DecisionSource_descriptor();
@@ -255,7 +254,7 @@ class DecisionTrace final :
     kTraceTextFieldNumber = 6,
     kOwnerShortcutUsedFieldNumber = 3,
     kPolicyVersionFieldNumber = 4,
-    kDecisionSoureFieldNumber = 5,
+    kDecisionSourceFieldNumber = 5,
   };
   // repeated string matched_roles = 1;
   int matched_roles_size() const;
@@ -337,13 +336,13 @@ class DecisionTrace final :
   void _internal_set_policy_version(int32_t value);
   public:
 
-  // .ny.auth.DecisionSource decision_soure = 5;
-  void clear_decision_soure();
-  ::ny::auth::DecisionSource decision_soure() const;
-  void set_decision_soure(::ny::auth::DecisionSource value);
+  // .ny.auth.DecisionSource decision_source = 5;
+  void clear_decision_source();
+  ::ny::auth::DecisionSource decision_source() const;
+  void set_decision_source(::ny::auth::DecisionSource value);
   private:
-  ::ny::auth::DecisionSource _internal_decision_soure() const;
-  void _internal_set_decision_soure(::ny::auth::DecisionSource value);
+  ::ny::auth::DecisionSource _internal_decision_source() const;
+  void _internal_set_decision_source(::ny::auth::DecisionSource value);
   public:
 
   // @@protoc_insertion_point(class_scope:ny.auth.DecisionTrace)
@@ -359,7 +358,7 @@ class DecisionTrace final :
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr trace_text_;
     bool owner_shortcut_used_;
     int32_t policy_version_;
-    int decision_soure_;
+    int decision_source_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1105,24 +1104,24 @@ inline void DecisionTrace::set_policy_version(int32_t value) {
   // @@protoc_insertion_point(field_set:ny.auth.DecisionTrace.policy_version)
 }
 
-// .ny.auth.DecisionSource decision_soure = 5;
-inline void DecisionTrace::clear_decision_soure() {
-  _impl_.decision_soure_ = 0;
+// .ny.auth.DecisionSource decision_source = 5;
+inline void DecisionTrace::clear_decision_source() {
+  _impl_.decision_source_ = 0;
 }
-inline ::ny::auth::DecisionSource DecisionTrace::_internal_decision_soure() const {
-  return static_cast< ::ny::auth::DecisionSource >(_impl_.decision_soure_);
+inline ::ny::auth::DecisionSource DecisionTrace::_internal_decision_source() const {
+  return static_cast< ::ny::auth::DecisionSource >(_impl_.decision_source_);
 }
-inline ::ny::auth::DecisionSource DecisionTrace::decision_soure() const {
-  // @@protoc_insertion_point(field_get:ny.auth.DecisionTrace.decision_soure)
-  return _internal_decision_soure();
+inline ::ny::auth::DecisionSource DecisionTrace::decision_source() const {
+  // @@protoc_insertion_point(field_get:ny.auth.DecisionTrace.decision_source)
+  return _internal_decision_source();
 }
-inline void DecisionTrace::_internal_set_decision_soure(::ny::auth::DecisionSource value) {
+inline void DecisionTrace::_internal_set_decision_source(::ny::auth::DecisionSource value) {
   
-  _impl_.decision_soure_ = value;
+  _impl_.decision_source_ = value;
 }
-inline void DecisionTrace::set_decision_soure(::ny::auth::DecisionSource value) {
-  _internal_set_decision_soure(value);
-  // @@protoc_insertion_point(field_set:ny.auth.DecisionTrace.decision_soure)
+inline void DecisionTrace::set_decision_source(::ny::auth::DecisionSource value) {
+  _internal_set_decision_source(value);
+  // @@protoc_insertion_point(field_set:ny.auth.DecisionTrace.decision_source)
 }
 
 // string trace_text = 6;

@@ -29,7 +29,7 @@ PROTOBUF_CONSTEXPR DecisionTrace::DecisionTrace(
   , /*decltype(_impl_.trace_text_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.owner_shortcut_used_)*/false
   , /*decltype(_impl_.policy_version_)*/0
-  , /*decltype(_impl_.decision_soure_)*/0
+  , /*decltype(_impl_.decision_source_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct DecisionTraceDefaultTypeInternal {
   PROTOBUF_CONSTEXPR DecisionTraceDefaultTypeInternal()
@@ -93,7 +93,7 @@ const uint32_t TableStruct_auth_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pro
   PROTOBUF_FIELD_OFFSET(::ny::auth::DecisionTrace, _impl_.matched_permissions_),
   PROTOBUF_FIELD_OFFSET(::ny::auth::DecisionTrace, _impl_.owner_shortcut_used_),
   PROTOBUF_FIELD_OFFSET(::ny::auth::DecisionTrace, _impl_.policy_version_),
-  PROTOBUF_FIELD_OFFSET(::ny::auth::DecisionTrace, _impl_.decision_soure_),
+  PROTOBUF_FIELD_OFFSET(::ny::auth::DecisionTrace, _impl_.decision_source_),
   PROTOBUF_FIELD_OFFSET(::ny::auth::DecisionTrace, _impl_.trace_text_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::ny::auth::CheckRequest, _internal_metadata_),
@@ -133,37 +133,36 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 
 const char descriptor_table_protodef_auth_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\nauth.proto\022\007ny.auth\"\275\001\n\rDecisionTrace\022"
+  "\n\nauth.proto\022\007ny.auth\"\276\001\n\rDecisionTrace\022"
   "\025\n\rmatched_roles\030\001 \003(\t\022\033\n\023matched_permis"
   "sions\030\002 \003(\t\022\033\n\023owner_shortcut_used\030\003 \001(\010"
-  "\022\026\n\016policy_version\030\004 \001(\005\022/\n\016decision_sou"
-  "re\030\005 \001(\0162\027.ny.auth.DecisionSource\022\022\n\ntra"
-  "ce_text\030\006 \001(\t\"\203\001\n\014CheckRequest\022\020\n\010app_co"
-  "de\030\001 \001(\t\022\017\n\007user_id\030\002 \001(\t\022\020\n\010perm_key\030\003 "
-  "\001(\t\022\025\n\rresource_type\030\004 \001(\t\022\023\n\013resource_i"
-  "d\030\005 \001(\t\022\022\n\nrequest_id\030\006 \001(\t\"\253\001\n\rCheckRes"
-  "ponse\022\017\n\007allowed\030\001 \001(\010\022\016\n\006reason\030\002 \001(\t\022\025"
-  "\n\rcurrent_roles\030\003 \003(\t\022\025\n\rsuggest_roles\030\004"
-  " \003(\t\022%\n\005trace\030\005 \001(\0132\026.ny.auth.DecisionTr"
-  "ace\022$\n\tdeny_code\030\006 \001(\0162\021.ny.auth.DenyCod"
-  "e*\265\002\n\010DenyCode\022\031\n\025DENY_CODE_UNSPECIFIED\020"
-  "\000\022\020\n\014DENY_CODE_OK\020\001\022\036\n\032DENY_CODE_INVALID"
-  "_ARGUMENT\020\002\022\033\n\027DENY_CODE_APP_NOT_FOUND\020\003"
-  "\022\032\n\026DENY_CODE_APP_DISABLED\020\004\022\"\n\036DENY_COD"
-  "E_PERMISSION_NOT_FOUND\020\005\022 \n\034DENY_CODE_RE"
-  "SOURCE_NOT_FOUND\020\006\022\036\n\032DENY_CODE_USER_HAS"
-  "_NO_ROLE\020\007\022\037\n\033DENY_CODE_PERMISSION_DENIE"
-  "D\020\010\022\034\n\030DENY_CODE_INTERNAL_ERROR\020\t*~\n\016Dec"
-  "isionSource\022\037\n\033DECISION_SOURCE_UNSPECIFI"
-  "ED\020\000\022\026\n\022DECISION_SOURCE_DB\020\001\022\031\n\025DECISION"
-  "_SOURCE_CACHE\020\002\022\030\n\024DECISION_SOURCE_SEED\020"
-  "\0032E\n\013AuthService\0226\n\005Check\022\025.ny.auth.Chec"
-  "kRequest\032\026.ny.auth.CheckResponseB\003\200\001\001b\006p"
-  "roto3"
+  "\022\026\n\016policy_version\030\004 \001(\005\0220\n\017decision_sou"
+  "rce\030\005 \001(\0162\027.ny.auth.DecisionSource\022\022\n\ntr"
+  "ace_text\030\006 \001(\t\"\203\001\n\014CheckRequest\022\020\n\010app_c"
+  "ode\030\001 \001(\t\022\017\n\007user_id\030\002 \001(\t\022\020\n\010perm_key\030\003"
+  " \001(\t\022\025\n\rresource_type\030\004 \001(\t\022\023\n\013resource_"
+  "id\030\005 \001(\t\022\022\n\nrequest_id\030\006 \001(\t\"\253\001\n\rCheckRe"
+  "sponse\022\017\n\007allowed\030\001 \001(\010\022\016\n\006reason\030\002 \001(\t\022"
+  "\025\n\rcurrent_roles\030\003 \003(\t\022\025\n\rsuggest_roles\030"
+  "\004 \003(\t\022%\n\005trace\030\005 \001(\0132\026.ny.auth.DecisionT"
+  "race\022$\n\tdeny_code\030\006 \001(\0162\021.ny.auth.DenyCo"
+  "de*\265\002\n\010DenyCode\022\031\n\025DENY_CODE_UNSPECIFIED"
+  "\020\000\022\020\n\014DENY_CODE_OK\020\001\022\036\n\032DENY_CODE_INVALI"
+  "D_ARGUMENT\020\002\022\033\n\027DENY_CODE_APP_NOT_FOUND\020"
+  "\003\022\032\n\026DENY_CODE_APP_DISABLED\020\004\022\"\n\036DENY_CO"
+  "DE_PERMISSION_NOT_FOUND\020\005\022 \n\034DENY_CODE_R"
+  "ESOURCE_NOT_FOUND\020\006\022\036\n\032DENY_CODE_USER_HA"
+  "S_NO_ROLE\020\007\022\037\n\033DENY_CODE_PERMISSION_DENI"
+  "ED\020\010\022\034\n\030DENY_CODE_INTERNAL_ERROR\020\t*d\n\016De"
+  "cisionSource\022\037\n\033DECISION_SOURCE_UNSPECIF"
+  "IED\020\000\022\026\n\022DECISION_SOURCE_DB\020\001\022\031\n\025DECISIO"
+  "N_SOURCE_CACHE\020\0022E\n\013AuthService\0226\n\005Check"
+  "\022\025.ny.auth.CheckRequest\032\026.ny.auth.CheckR"
+  "esponseB\003\200\001\001b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_auth_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_auth_2eproto = {
-    false, false, 1045, descriptor_table_protodef_auth_2eproto,
+    false, false, 1020, descriptor_table_protodef_auth_2eproto,
     "auth.proto",
     &descriptor_table_auth_2eproto_once, nullptr, 0, 3,
     schemas, file_default_instances, TableStruct_auth_2eproto::offsets,
@@ -209,7 +208,6 @@ bool DecisionSource_IsValid(int value) {
     case 0:
     case 1:
     case 2:
-    case 3:
       return true;
     default:
       return false;
@@ -238,7 +236,7 @@ DecisionTrace::DecisionTrace(const DecisionTrace& from)
     , decltype(_impl_.trace_text_){}
     , decltype(_impl_.owner_shortcut_used_){}
     , decltype(_impl_.policy_version_){}
-    , decltype(_impl_.decision_soure_){}
+    , decltype(_impl_.decision_source_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -251,8 +249,8 @@ DecisionTrace::DecisionTrace(const DecisionTrace& from)
       _this->GetArenaForAllocation());
   }
   ::memcpy(&_impl_.owner_shortcut_used_, &from._impl_.owner_shortcut_used_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.decision_soure_) -
-    reinterpret_cast<char*>(&_impl_.owner_shortcut_used_)) + sizeof(_impl_.decision_soure_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.decision_source_) -
+    reinterpret_cast<char*>(&_impl_.owner_shortcut_used_)) + sizeof(_impl_.decision_source_));
   // @@protoc_insertion_point(copy_constructor:ny.auth.DecisionTrace)
 }
 
@@ -266,7 +264,7 @@ inline void DecisionTrace::SharedCtor(
     , decltype(_impl_.trace_text_){}
     , decltype(_impl_.owner_shortcut_used_){false}
     , decltype(_impl_.policy_version_){0}
-    , decltype(_impl_.decision_soure_){0}
+    , decltype(_impl_.decision_source_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.trace_text_.InitDefault();
@@ -305,8 +303,8 @@ void DecisionTrace::Clear() {
   _impl_.matched_permissions_.Clear();
   _impl_.trace_text_.ClearToEmpty();
   ::memset(&_impl_.owner_shortcut_used_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.decision_soure_) -
-      reinterpret_cast<char*>(&_impl_.owner_shortcut_used_)) + sizeof(_impl_.decision_soure_));
+      reinterpret_cast<char*>(&_impl_.decision_source_) -
+      reinterpret_cast<char*>(&_impl_.owner_shortcut_used_)) + sizeof(_impl_.decision_source_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -362,12 +360,12 @@ const char* DecisionTrace::_InternalParse(const char* ptr, ::_pbi::ParseContext*
         } else
           goto handle_unusual;
         continue;
-      // .ny.auth.DecisionSource decision_soure = 5;
+      // .ny.auth.DecisionSource decision_source = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          _internal_set_decision_soure(static_cast<::ny::auth::DecisionSource>(val));
+          _internal_set_decision_source(static_cast<::ny::auth::DecisionSource>(val));
         } else
           goto handle_unusual;
         continue;
@@ -442,11 +440,11 @@ uint8_t* DecisionTrace::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(4, this->_internal_policy_version(), target);
   }
 
-  // .ny.auth.DecisionSource decision_soure = 5;
-  if (this->_internal_decision_soure() != 0) {
+  // .ny.auth.DecisionSource decision_source = 5;
+  if (this->_internal_decision_source() != 0) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteEnumToArray(
-      5, this->_internal_decision_soure(), target);
+      5, this->_internal_decision_source(), target);
   }
 
   // string trace_text = 6;
@@ -508,10 +506,10 @@ size_t DecisionTrace::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_policy_version());
   }
 
-  // .ny.auth.DecisionSource decision_soure = 5;
-  if (this->_internal_decision_soure() != 0) {
+  // .ny.auth.DecisionSource decision_source = 5;
+  if (this->_internal_decision_source() != 0) {
     total_size += 1 +
-      ::_pbi::WireFormatLite::EnumSize(this->_internal_decision_soure());
+      ::_pbi::WireFormatLite::EnumSize(this->_internal_decision_source());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -543,8 +541,8 @@ void DecisionTrace::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::
   if (from._internal_policy_version() != 0) {
     _this->_internal_set_policy_version(from._internal_policy_version());
   }
-  if (from._internal_decision_soure() != 0) {
-    _this->_internal_set_decision_soure(from._internal_decision_soure());
+  if (from._internal_decision_source() != 0) {
+    _this->_internal_set_decision_source(from._internal_decision_source());
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -572,8 +570,8 @@ void DecisionTrace::InternalSwap(DecisionTrace* other) {
       &other->_impl_.trace_text_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(DecisionTrace, _impl_.decision_soure_)
-      + sizeof(DecisionTrace::_impl_.decision_soure_)
+      PROTOBUF_FIELD_OFFSET(DecisionTrace, _impl_.decision_source_)
+      + sizeof(DecisionTrace::_impl_.decision_source_)
       - PROTOBUF_FIELD_OFFSET(DecisionTrace, _impl_.owner_shortcut_used_)>(
           reinterpret_cast<char*>(&_impl_.owner_shortcut_used_),
           reinterpret_cast<char*>(&other->_impl_.owner_shortcut_used_));

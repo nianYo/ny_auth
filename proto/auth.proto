@@ -46,7 +46,7 @@ enum DecisionSource {
 
     DECISION_SOURCE_CACHE = 2;
 
-    DECISION_SOURCE_SEED = 3;
+    // DECISION_SOURCE_SEED = 3;
 }
 
 // ======================================================
@@ -63,7 +63,7 @@ message DecisionTrace {
 
     int32 policy_version = 4;
 
-    DecisionSource decision_soure = 5;
+    DecisionSource decision_source = 5;
 
     string trace_text = 6;   
 }

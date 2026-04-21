@@ -52,7 +52,7 @@ std::optional<AppInfo> PermissionDAO::getAppInfo(const std::string& app_code){
                 "SELECT a.id AS app_id,"
                 "       a.app_code AS app_code,"
                 "       a.status AS app_status,"
-                "       CONALESCE(pv.current_version, 1) AS current_version "
+                "       COALESCE(pv.current_version, 1) AS current_version "
                 "FROM ny_apps a "
                 "LEFT JOIN ny_policy_versions pv ON pv.app_id = a.id "
                 "WHERE a.app_code = ? "
@@ -109,7 +109,7 @@ std::vector<std::string> PermissionDAO::getUserPermissions(const std::string& ap
                 "FROM ny_apps a "
                 "JOIN ny_user_roles ur ON ur.app_id = a.id "
                 "JOIN ny_roles r ON r.id = ur.role_id "
-                "JOIN ny_roles_permissions rp ON rp.role_id = r.id "
+                "JOIN ny_role_permissions rp ON rp.role_id = r.id "
                 "JOIN ny_permissions p ON p.id = rp.perm_id "
                 "WHERE a.app_code = ? "
                 "   AND a.status = 1 "
@@ -195,7 +195,7 @@ std::vector<std::string> PermissionDAO::getRolesWithPermission(const std::string
                 "SELECT DISTINCT r.role_key "
                 "FROM ny_apps a "
                 "JOIN ny_roles r ON r.app_id = a.id "
-                "JOIN ny_roles_permissions rp ON  rp.role_id = r.id "
+                "JOIN ny_role_permissions rp ON  rp.role_id = r.id "
                 "JOIN ny_permissions p ON p.id = rp.perm_id "
                 "WHERE a.app_code = ? "
                 "   AND a.status = 1 "
@@ -235,7 +235,7 @@ bool PermissionDAO::permissionExists(const std::string& app_code, const std::str
         
         std::unique_ptr<sql::PreparedStatement> stmt(
             conn->prepareStatement(
-                "SELECT 1"
+                "SELECT 1 "
                 "FROM ny_apps a "
                 "JOIN ny_permissions p ON p.app_id = a.id "
                 "WHERE a.app_code = ? "
@@ -278,7 +278,7 @@ std::optional<ResourceInfo> PermissionDAO::getResourceInfo(const std::string& ap
                 "SELECT r.id, r.resource_type, r.resource_id, "
                 "       r.owner_user_id, r.status "
                 "FROM ny_apps a "
-                "JOIN ny_resources r ON p.app_id = a.id "
+                "JOIN ny_resources r ON r.app_id = a.id "
                 "WHERE a.app_code = ? "
                 "   AND a.status = 1 "
                 "   AND r.resource_type = ? "
@@ -298,7 +298,7 @@ std::optional<ResourceInfo> PermissionDAO::getResourceInfo(const std::string& ap
         }
 
         ResourceInfo info;
-        info.resource_pk = rs->getInt64("64");
+        info.resource_pk = rs->getInt64("id");
         info.resource_type = rs->getString("resource_type");
         info.resource_id = rs->getString("resource_id");
         info.owner_user_id = rs->getString("owner_user_id");

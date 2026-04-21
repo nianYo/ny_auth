@@ -26,7 +26,7 @@ void FillInvalArgumentResponse(ny::auth::CheckResponse* response, const std::str
     ny::auth::DecisionTrace* trace = response->mutable_trace();
     trace->set_owner_shortcut_used(false);
     trace->set_policy_version(1);
-    trace->set_decision_soure(ny::auth::DECISION_SOURCE_UNSPECIFIED);
+    trace->set_decision_source(ny::auth::DECISION_SOURCE_UNSPECIFIED);
     trace->set_trace_text("auth request invalid");
 }
 
@@ -47,7 +47,7 @@ void FillInternalErrorResonse(ny::auth::CheckResponse* response, const std::stri
     ny::auth::DecisionTrace* trace = response->mutable_trace();
     trace->set_owner_shortcut_used(false);
     trace->set_policy_version(1);
-    trace->set_decision_soure(ny::auth::DECISION_SOURCE_UNSPECIFIED);
+    trace->set_decision_source(ny::auth::DECISION_SOURCE_UNSPECIFIED);
     trace->set_trace_text("auth service internal error");
 }
 
@@ -170,7 +170,7 @@ void AuthServiceImpl::fillCheckResponse(const DecisionResult& result, ny::auth::
 
     trace->set_policy_version(result.policy_version);
 
-    trace->set_decision_soure(mapDecisionSourceToProto(result.decision_source));
+    trace->set_decision_source(mapDecisionSourceToProto(result.decision_source));
 
     trace->set_trace_text(result.trace_text);
 }

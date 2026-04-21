@@ -286,19 +286,24 @@ bool DecisionEngine::tryOwnerShortcut(const DecisionRequest& request, DecisionRe
         return false;
     }
 
-    const bool  is_owner = dao_->isResourceOwner(request.app_code, request.resource_type, request.resource_id, request.user_id);
+        // 先看这个权限是否允许 owner 快捷通过
+    if (!dao_->isOwnerShortcutEnabled(request.app_code, request.perm_key)) {
+        return false;
+    }
 
-    if(!is_owner) {
+    // 再看当前用户是不是资源 owner
+    if (!dao_->isResourceOwner(request.app_code, request.resource_type, request.resource_id, request.user_id)) {
         return false;
     }
 
     result.allowed = true;
     result.reason = "资源 owner 快捷规则允许访问";
-    result.deny_code.clear();
+    result.deny_code = "OK";
     result.owner_shortcut_used = true;
     result.decision_source = DecisionSourceType::kDatabase;
+    result.current_roles = dao_->getUserRoles(request.app_code, request.user_id);
     result.matched_permissions.push_back(request.perm_key);
-    result.trace_text = "owner shortcut matched: user_id = " + request.user_id + ", resource_id = "+ request.resource_id + ", perm_key = " + request.perm_key;
+    result.trace_text = "owner shortcut matched: user_id = " + request.user_id + ", resource_id = " + request.resource_id + ", perm_key = " + request.perm_key;
 
     return true;
 }
@@ -330,15 +335,15 @@ void DecisionEngine::evaluateByRbac(const DecisionRequest& request, const UserPe
 
         result.allowed = true;
         result.reason = "用户权限允许访问";
-        result.deny_code.clear();
+        result.deny_code = "OK";
         result.matched_permissions.push_back(request.perm_key);
 
-        for(const auto& current_role :result.current_roles) {
+        for(const auto& current_role : result.current_roles) {
             
             for(const auto& candidate_role : candidate_roles) {
 
                 if(current_role == candidate_role) {
-                    result.matched_permissions.push_back(current_role);
+                    result.matched_roles.push_back(current_role);
                 }
             }
         }
