@@ -118,7 +118,7 @@ DecisionResult DecisionEngine::Evaluate(const DecisionRequest& request) {
     //    - 这篇文档是你自己的
     //    - 且 document:edit 允许 owner 快捷通过
     // --------------------------------------------------
-    if(tyrOwnerShortcut(request, result)) {
+    if(tryOwnerShortcut(request, result)) {
 
         result.current_roles = dao_->getUserPermissions(request.app_code, request.user_id);
 

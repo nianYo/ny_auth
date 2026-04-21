@@ -1,0 +1,3 @@
+/home/nianyou/use/ny_auth/build/CMakeFiles/auth_server.dir
+/home/nianyou/use/ny_auth/build/CMakeFiles/edit_cache.dir
+/home/nianyou/use/ny_auth/build/CMakeFiles/rebuild_cache.dir

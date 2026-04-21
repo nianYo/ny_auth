@@ -34,6 +34,8 @@ public:
 
         std::size_t miss_count = 0;
 
+        std::size_t put_count = 0;
+
         std::size_t invalidate_count = 0;
     };
 
@@ -52,7 +54,7 @@ public:
 
         std::lock_guard<std::mutex> lock(mutex_);
 
-        auto it cache_.find(key);
+        auto it = cache_.find(key);
 
         if(it == cache_.end()) {
             
@@ -66,7 +68,7 @@ public:
             cache_.erase(it);
 
             ++stats_.miss_count;
-            ++stats_.invalidadte_count;
+            ++stats_.invalidate_count;
 
             return false;
         }
@@ -123,18 +125,18 @@ public:
 
         std::lock_guard<std::mutex> lock(mutex_);
 
-        const std::size_t current_size = cache_,size();
+        const std::size_t current_size = cache_.size();
 
         cache_.clear();
 
-        status_.invalidate_count += current_size;
+        stats_.invalidate_count += current_size;
     }
 
-    std::size_t Size() const(){
+    std::size_t Size() const {
 
         std::lock_guard<std::mutex> lock(mutex_);
 
-        retun cache_.size();
+        return cache_.size();
     }
 
     CacheStats GetStats() const {
@@ -150,7 +152,7 @@ private:
 
     CacheStats stats_;
 
-    mutable std::mutex::mutex_;
+    mutable std::mutex mutex_;
 };
 
 #endif
