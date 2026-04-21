@@ -319,20 +319,42 @@ std::optional<ResourceInfo> PermissionDAO::getResourceInfo(const std::string& ap
 // isResourceOwner
 // 作用：判断某个资源是否属于某个用户
 // ======================================================
-bool PermissionDAO::isResourceOwner(const std::string& app_code, const std::string& resource_type, const std::string& resource_id, const std::string& user_id) {
-    auto resource_opt = getResourceInfo(app_code, resource_type, resource_id);
+bool PermissionDAO::isResourceOwner(const std::string& app_code,
+                                    const std::string& resource_type,
+                                    const std::string& resource_id,
+                                    const std::string& user_id) {
+    try {
+        std::unique_ptr<sql::Connection> conn(createConnection());
 
-    if(!resource_opt.has_value()) {
+        std::unique_ptr<sql::PreparedStatement> stmt(
+            conn->prepareStatement(
+                "SELECT 1 "
+                "FROM ny_apps a "
+                "JOIN ny_resources r ON r.app_id = a.id "
+                "WHERE a.app_code = ? "
+                "  AND a.status = 1 "
+                "  AND r.resource_type = ? "
+                "  AND r.resource_id = ? "
+                "  AND r.owner_user_id = ? "
+                "  AND r.status = 1 "
+                "LIMIT 1"
+            )
+        );
+
+        stmt->setString(1, app_code);
+        stmt->setString(2, resource_type);
+        stmt->setString(3, resource_id);
+        stmt->setString(4, user_id);
+
+        std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery());
+        return rs->next();
+    } catch (const sql::SQLException& e) {
+        setLastError(e.what());
+        return false;
+    } catch (const std::exception& e) {
+        setLastError(e.what());
         return false;
     }
-
-    const ResourceInfo& info = resource_opt.value();
-
-    if(!info.enabled) {
-        return false;
-    }
-
-    return info.owner_user_id == user_id;
 }
 
 // ======================================================

@@ -120,8 +120,6 @@ DecisionResult DecisionEngine::Evaluate(const DecisionRequest& request) {
     // --------------------------------------------------
     if(tryOwnerShortcut(request, result)) {
 
-        result.current_roles = dao_->getUserPermissions(request.app_code, request.user_id);
-
         DecisionLogRecord log_record;
         log_record.app_id = app_info.app_id;
         log_record.app_code = app_info.app_code;
@@ -138,6 +136,7 @@ DecisionResult DecisionEngine::Evaluate(const DecisionRequest& request) {
         log_record.deny_code = result.deny_code;
         log_record.reason = result.reason;
         log_record.trace_text = result.trace_text;
+
         dao_->insertDecisionLog(log_record);
 
         return result;
@@ -286,13 +285,13 @@ bool DecisionEngine::tryOwnerShortcut(const DecisionRequest& request, DecisionRe
         return false;
     }
 
-        // 先看这个权限是否允许 owner 快捷通过
     if (!dao_->isOwnerShortcutEnabled(request.app_code, request.perm_key)) {
         return false;
     }
 
-    // 再看当前用户是不是资源 owner
-    if (!dao_->isResourceOwner(request.app_code, request.resource_type, request.resource_id, request.user_id)) {
+    const bool is_owner = dao_->isResourceOwner(request.app_code, request.resource_type, request.resource_id, request.user_id);
+
+    if(!is_owner) {
         return false;
     }
 
