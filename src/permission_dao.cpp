@@ -370,7 +370,7 @@ bool PermissionDAO::isOwnerShortcutEnabled(const std::string& app_code, const st
         
         std::unique_ptr<sql::PreparedStatement> stmt(
             conn->prepareStatement(
-                "SELECT p.owner_shortcut_enabled"
+                "SELECT p.owner_shortcut_enabled "
                 "FROM ny_apps a "
                 "JOIN ny_permissions p ON p.app_id = a.id "
                 "WHERE a.app_code = ? "
