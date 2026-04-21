@@ -1,0 +1,367 @@
+syntax = "proto3";
+
+package ny.admin;
+
+option cc_generic_services = true;
+
+import "auth.proto";
+
+// ============================================================
+// 管理端错误码
+// 作用：统一表示管理操作的失败类型
+// ============================================================
+enum AdminErrorCode {
+
+    ADMIN_ERROR_CODE_UNSPECIFIED = 0;
+
+    ADMIN_ERROR_CODE_OK = 1;
+
+    ADMIN_ERROR_CODE_INVALID_ARGUMENT = 2;
+
+    ADMIN_ERROR_CODE_UNAUTHORIZED = 3;
+
+    ADMIN_ERROR_CODE_FORBIDDEN = 4;
+    
+    ADMIN_ERROR_CODE_NOT_FOUND = 5;
+
+    ADMIN_ERROR_CODE_ALREADY_EXISTS = 6;
+
+    ADMIN_ERROR_CODE_CONFLICT = 7;
+
+    ADMIN_ERROR_CODE_INTERNAL_ERROR = 8;
+}
+
+// ============================================================
+// 管理员会话信息
+// 登录成功后返回给客户端
+// ============================================================
+message AdminSession {
+
+    string token = 1;
+
+    int64 user_id = 2;
+
+    string username = 3;
+
+    string display_name = 4;
+
+    bool is_super_admin = 5;
+
+    int32 expires_in_seconds = 6;
+}
+
+// ============================================================
+// 统一的操作结果元信息
+// 作用：很多响应里都需要 success / message / error_code
+// ============================================================
+message OperationStatus {
+
+    bool success = 1;
+
+    string message = 2;
+
+    AdminErrorCode error_code = 3;
+}
+
+// ============================================================
+// 登录
+// ============================================================
+message LoginRequest {
+
+    string username = 1;
+
+    string password = 2;
+}
+
+message LoginResponse {
+
+    OperationStatus status = 1;
+
+    AdminSession session = 2;
+}
+
+// ============================================================
+// 创建角色
+// ============================================================
+message CreateRoleRequest {
+
+    string operator_token = 1;
+
+    string app_code = 2;
+
+    string role_key = 3;
+
+    string role_name = 4;
+
+    string description = 5;
+
+    bool is_default = 6;
+}
+
+message CreateRoleResponse {
+
+    OperationStatus status = 1;
+
+    int64 role_id = 2;
+}
+
+// ============================================================
+// 创建权限
+// ============================================================
+message CreatePermissionRequest {
+
+    string operator_token = 1;
+
+    string app_code = 2;
+
+    string perm_key = 3;
+
+    string perm_name = 4;
+
+    string resource_type = 5;
+
+    bool owner_shortcut_enabled = 6;
+
+    string description = 7;
+}
+
+message CreatePermissionResponse {
+
+    OperationStatus status = 1;
+
+    int64 permission_id = 2;
+}
+
+// ============================================================
+// 给角色绑定权限
+// ============================================================
+message BindPermissionToRoleRequest {
+
+    string operator_token = 1;
+
+    string app_code = 2;
+
+    string role_key = 3;
+
+    string perm_key = 4;
+}
+
+message BindPermissionToRoleResponse {
+
+    OperationStatus status = 1;
+}
+
+// ============================================================
+// 给角色绑定权限
+// ============================================================
+message GrantRoleToUserRequest {
+
+    string operator_token = 1;
+
+    string app_code = 2;
+
+    string user_id = 3;
+
+    string role_key = 4;
+}
+
+message GrantRoleToUserResponse {
+
+    OperationStatus status = 1;
+}
+
+// ============================================================
+// 设置资源 owner
+// 用于支撑 V1 中的 owner 快捷规则
+// ============================================================
+message SetResourceOwnerRequest {
+
+    string operator_token = 1;
+
+    string app_code = 2;
+
+    string resource_type = 3;
+
+    string resource_id = 4;
+
+    string owner_user_id = 5;
+
+    string resource_name = 6;
+
+    string metadata_text = 7;
+}
+
+message SetResourceOwnerResponse {
+
+    OperationStatus status = 1;
+}
+
+// ============================================================
+// 发布策略
+// 当前 V2 第一版先做简单版本：
+// 把 ny_policy_versions.current_version + 1
+// ============================================================
+message PublishPolicyRequest {
+
+    string operator_token = 1;
+
+    string app_code = 2;
+
+    string publish_note = 3;
+}
+
+message PublishPolicyResponse {
+
+    OperationStatus status = 1;
+
+    int32 new_policy_version = 2;
+}
+
+// ============================================================
+// 模拟检查
+// 这是 V2 的亮点接口之一
+//
+// 作用：
+// 不真正改正式策略数据，先模拟“如果应用某个变更，会发生什么”
+// 为了先把接口做简单，我们先支持几种最常用的模拟输入：
+// 1. 假设额外授予某个角色给某个用户
+// 2. 假设额外给某个角色绑定某个权限
+// 3. 假设把某个资源 owner 改成某个用户
+// ============================================================
+message SimulateGrantRole {
+
+    string user_id = 1;
+
+    string role_key = 2;
+}
+
+message SimulateBindPermission {
+
+    string role_key = 1;
+
+    string perm_key = 2;
+}
+
+message SimulateOwnerOverride {
+
+    string resource_type = 1;
+
+    string resource_id = 2;
+
+    string owner_user_id = 3;
+}
+
+message SimulateCheckRequest {
+
+    string operator_token = 1;
+
+    string app_code = 2;
+
+    string user_id = 3;
+
+    string perm_key = 4;
+
+    string resource_type = 5;
+
+    string resource_id = 6;
+
+    repeated SimulateGrantRole simulated_grants = 7;
+
+    repeated SimulateBindPermission simulated_bindings = 8;
+
+    repeated SimulateOwnerOverride simulated_owner_overrides = 9;
+
+    string request_id = 10;
+}
+
+message SimulateCheckResponse {
+
+    OperationStatus status = 1;
+
+    bool allowed = 2;
+
+    string reason = 3;
+
+    repeated string current_roles = 4;
+
+    repeated string suggest_roles = 5;
+
+    ny.auth.DecisionTrace trace = 6;
+
+    ny.auth.DenyCode deny_code = 7;
+}
+
+// ============================================================
+// 审计日志记录
+// ============================================================
+message AuditLogItem {
+
+    int64 id =1;
+
+    int64 operator_user_id = 2;
+
+    string operator_username = 3;
+
+    string operator_display_name = 4;
+
+    string app_code = 5;
+
+    string action_type = 6;
+
+    string target_type = 7;
+
+    string target_key = 8;
+
+    string before_text = 9;
+
+    string after_text = 10;
+
+    string trace_text = 11;
+
+    string created_at = 12;
+}
+
+// ============================================================
+// 查询审计日志
+// ============================================================
+message ListAuditLogsRequest {
+
+    string operator_token = 1;
+
+    string app_code = 2;
+
+    string action_type = 3;
+
+    int32 limit = 4;
+}
+
+message ListAuditLogsResponse {
+
+    OperationStatus status = 1;
+
+    repeated AuditLogItem items = 2;
+}
+
+// ============================================================
+// AdminService：V2 管理端服务
+// ============================================================
+service AdminService {
+
+    rpc Login(LoginRequest) returns (LoginResponse);
+
+    rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse);
+
+    rpc CreatePermission(CreatePermissionRequest) returns (CreatePermissionResponse);
+
+    rpc BindPermissionToRole(BindPermissionToRoleRequest) returns (BindPermissionToRoleResponse);
+
+    rpc GrantRoleToUser(GrantRoleToUserRequest) returns (GrantRoleToUserResponse);
+
+    rpc SetResourceOwner(SetResourceOwnerRequest) returns (SetResourceOwnerResponse);
+
+    rpc PublishPolicy(PublishPolicyRequest) returns (PublishPolicyResponse);
+
+    rpc SimulateCheck(SimulateCheckRequest) returns (SimulateCheckResponse);
+
+    rpc ListAuditLogs(ListAuditLogsRequest) returns (ListAuditLogsResponse);
+}
