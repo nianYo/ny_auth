@@ -445,7 +445,7 @@ bool AdminDAO::bindPermissionToRole(const std::string& app_code, const std::stri
 // userRoleBindingExists
 // 作用：判断用户是否已经拥有该角色
 // ======================================================
-bool AdminDAO::userRoleBingingExists(const std::string& app_code, const std::string& user_id, const std::string& role_key) {
+bool AdminDAO::userRoleBindingExists(const std::string& app_code, const std::string& user_id, const std::string& role_key) {
     try {
 
         std::unique_ptr<sql::Connection> conn(createConnection());

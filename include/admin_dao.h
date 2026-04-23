@@ -130,7 +130,7 @@ public:
 
     bool grantRoleToUser(const std::string& app_code, const std::string& user_id, const std::string& role_key, const std::string& granted_by);
 
-    bool userRoleBingingExists(const std::string& app_code, const std::string& user_id, const std::string& role_key);
+    bool userRoleBindingExists(const std::string& app_code, const std::string& user_id, const std::string& role_key);
 
 
     bool upsertResourceOwner(const std::string& app_code, const std::string& resource_type, const std::string& resource_id, const std::string& resource_name, const std::string& owner_user_id, const std::string& metadata_text);
