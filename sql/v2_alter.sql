@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS ny_audit_logs (
 
     target_type VARCHAR(64) NOT NULL,
 
-    target_key VARCHAR(128) NOT NULL;
+    target_key VARCHAR(128) NOT NULL,
 
     before_text TEXT,
 

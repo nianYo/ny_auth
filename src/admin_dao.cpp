@@ -19,7 +19,7 @@ sql::Connection* AdminDAO::createConnection() {
     sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
 
     std::ostringstream oss;
-    oss << "tcp://" << host_ << " : " << port_;
+    oss << "tcp://" << host_ << ":" << port_;
     
     sql::Connection* conn =driver->connect(oss.str(), user_, password_);
 
@@ -236,7 +236,7 @@ bool AdminDAO::permissionExists(const std::string& app_code, const std::string& 
                 "FROM ny_permissions p "
                 "JOIN ny_apps a ON a.id = p.app_id "
                 "WHERE a.app_code = ? "
-                "  AND p.perm_key"
+                "  AND p.perm_key = ? "
                 "LIMIT 1"
             )
         );
@@ -269,7 +269,7 @@ int64_t AdminDAO::createPermission(const std::string& app_code, const std::strin
 
         std::unique_ptr<sql::PreparedStatement> find_app_stmt(
             conn->prepareStatement(
-                "SELECT id FROM ny_apps WHERES app_code = ? LIMIT 1"
+                "SELECT id FROM ny_apps WHERE app_code = ? LIMIT 1"
             )
         );
 
@@ -285,9 +285,9 @@ int64_t AdminDAO::createPermission(const std::string& app_code, const std::strin
         std::unique_ptr<sql::PreparedStatement> insert_stmt(
             conn->prepareStatement(
                 "INSERT INTO ny_permissions ("
-                "  app_id, perm_name, perm_key, resource_tyoe, "
-                "  owener_shortcut_enabled, description, status "
-                ") VALUES (?, ?, ?, ?, ?, ?, ?, 1)"
+                "  app_id, perm_name, perm_key, resource_type, "
+                "  owner_shortcut_enabled, description, status "
+                ") VALUES (?, ?, ?, ?, ?, ?, 1)"
             )
         );
 
@@ -383,7 +383,7 @@ bool AdminDAO::bindPermissionToRole(const std::string& app_code, const std::stri
                 "JOIN ny_apps a ON a.id = r.app_id "
                 "WHERE a.app_code = ? "
                 "  AND r.role_key = ? "
-                "LINIT 1 "
+                "LIMIT 1 "
             )
         );
 
@@ -459,7 +459,7 @@ bool AdminDAO::userRoleBindingExists(const std::string& app_code, const std::str
                 "WHERE a.app_code = ? "
                 "  AND ur.app_user_id = ? "
                 "  AND r.role_key = ? "
-                "LINIT 1 "
+                "LIMIT 1 "
             )
         );
 
@@ -768,7 +768,7 @@ int AdminDAO::publishPolicy(const std::string& app_code, const std::string& publ
                     "UPDATE ny_policy_versions "
                     "SET current_version = ?, "
                     "    published_by = ?, "
-                    "    published_note = ?, "
+                    "    publish_note = ?, "
                     "    updated_at = CURRENT_TIMESTAMP "
                     "WHERE app_id = ? "
                 )
@@ -788,7 +788,7 @@ int AdminDAO::publishPolicy(const std::string& app_code, const std::string& publ
         }
             std::unique_ptr<sql::PreparedStatement> insert_stmt(
                 conn->prepareStatement(
-                    "INSERT INTO ny_policy_version ("
+                    "INSERT INTO ny_policy_versions ("
                     "  app_id, current_version, published_by, publish_note "
                     ") VALUES (?, 1, ?, ?)"
                 )
@@ -874,7 +874,7 @@ std::vector<AuditLogItem> AdminDAO::listAuditLogs(const std::string& app_code, c
         std::string sql = "SELECT id, operator_user_id, operator_username, operator_display_name, "
                           "       app_code, action_type, target_type, target_key, "
                           "       before_text, after_text, trace_text, "
-                          "       DATE_FORMAT(create_at, '%Y-%m-%d %H:%i:%s') AS created_at "
+                          "       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at "
                           "FROM ny_audit_logs "
                           "WHERE 1 = 1 ";
                           
@@ -951,7 +951,15 @@ bool AdminDAO::isConnected() const {
         );
 
         return conn != nullptr;
-    } catch(...) {
+    } catch (const sql::SQLException& e) {
+        
+        const_cast<AdminDAO*>(this)->setLastError(e.what());
+
+        return false;
+    } catch (const std::exception& e) {
+
+        const_cast<AdminDAO*>(this)->setLastError(e.what());
+
         return false;
     }
 }

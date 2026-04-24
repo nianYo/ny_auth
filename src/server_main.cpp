@@ -33,7 +33,7 @@ DEFINE_int32(db_port, 3306, "MySQL port");
 
 DEFINE_string(db_user, "root", "MySQL user");
 
-DEFINE_string(db_password, "123456", "MySQL password");
+DEFINE_string(db_password, "zk041125", "MySQL password");
 
 DEFINE_string(db_name, "ny_auth", "MySQL database name");
 
