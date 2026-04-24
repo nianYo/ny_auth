@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
+
 find_package(Threads REQUIRED)
 
 find_package(Protobuf REQUIRED)
@@ -28,10 +29,16 @@ if(NOT GFLAGS_LIBRARY)
     message(FATAL_ERROR "gflags libiary not found")
 endif()
 
-set(PROTO_SRCS src/auth.pb.cc)
-set(PROTO_HDRS src/auth.pb.h)
 
-add_executable(auth_server src/server_main.cpp src/permission_dao.cpp src/decision_engine.cpp src/auth_service_impl.cpp ${PROTO_SRCS})
+set(PROTO_SRCS src/auth.pb.cc src/admin.pb.cc)
+set(PROTO_HDRS src/auth.pb.h src/admin.pb.h)
+
+add_executable(
+    auth_server 
+    src/server_main.cpp src/permission_dao.cpp src/decision_engine.cpp src/auth_service_impl.cpp 
+    src/admin_dao.cpp src/simulation_engine.cpp src/admin_manager.cpp src/admin_service_impl.cpp
+    ${PROTO_SRCS}
+    )
 
 target_include_directories(auth_server PRIVATE include src ${PROTOBUF_INCLUDE_DIRS} ${BRPC_INCLUDE_DIRS} ${MYSQL_INCLUDE_DIR})
 
