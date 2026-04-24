@@ -451,7 +451,7 @@ ManagerGrantRoleToUserResult AdminManager::GrantRoleToUser(const ManagerGrantRol
         return result;
     }
 
-    if(!admin_dao_->userRoleBindingExists(request.app_code, request.user_id, request.role_key)) {
+    if(admin_dao_->userRoleBindingExists(request.app_code, request.user_id, request.role_key)) {
 
         result.status.success = false;
         result.status.message = "用户已拥有该角色";

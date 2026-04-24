@@ -811,7 +811,7 @@ ny::admin::AdminErrorCode AdminServiceImpl::mapAdminErrorCodeToProto(const std::
 // ======================================================
 ny::auth::DenyCode AdminServiceImpl::mapDenyCodeToProto(const std::string& deny_code) const {
 
-    if(deny_code == "APP_COT_FOUND") {
+    if(deny_code == "APP_NOT_FOUND") {
 
         return ny::auth::DENY_CODE_APP_NOT_FOUND;
     }
@@ -821,7 +821,7 @@ ny::auth::DenyCode AdminServiceImpl::mapDenyCodeToProto(const std::string& deny_
         return ny::auth::DENY_CODE_APP_DISABLED;
     }
 
-    if(deny_code == "PERMISSION_COT_FOUND") {
+    if(deny_code == "PERMISSION_NOT_FOUND") {
 
         return ny::auth::DENY_CODE_PERMISSION_NOT_FOUND;
     }

@@ -75,9 +75,9 @@ int main(int argc, char* argv[]) {
 
     AuthServiceImpl auth_service(decision_engine);
 
-    auto simulation_enggine = std::make_shared<SimulationEngine>(permission_dao, admin_dao);
+    auto simulation_engine = std::make_shared<SimulationEngine>(permission_dao, admin_dao);
 
-    auto admin_manager = std::make_shared<AdminManager>(admin_dao, simulation_enggine, admin_session_cache, FLAGS_admin_session_ttl);
+    auto admin_manager = std::make_shared<AdminManager>(admin_dao, simulation_engine, admin_session_cache, FLAGS_admin_session_ttl);
 
     AdminServiceImpl admin_service(admin_manager);
 
