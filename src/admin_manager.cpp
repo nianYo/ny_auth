@@ -68,7 +68,7 @@ ManagerLoginResult AdminManager::Login(const ManagerLoginRequest& request) {
 
     const ConsoleUserInfo console_user = console_user_opt.value();
 
-    if(request.username.empty()) {
+    if(!console_user.enabled) {
         
         result.status.success = false;
         result.status.message = "管理员账号已被禁用";
@@ -367,7 +367,7 @@ ManagerBindPermissionToRoleResult AdminManager::BindPermissionToRole(const Manag
         return result;
     }
 
-    if(!admin_dao_->rolePermissionBindingExists(request.app_code, request.role_key, request.perm_key)) {
+    if(admin_dao_->rolePermissionBindingExists(request.app_code, request.role_key, request.perm_key)) {
 
         result.status.success = false;
         result.status.message = "角色与权限已绑定";
@@ -669,7 +669,7 @@ ManagerSimulateCheckResult AdminManager::SimulateCheck(const ManagerSimulateChec
 
         result.status.success = false;
         result.status.message = "登录状态无效或已过期";
-        result.status.error_code = "UNQUTHORIZED";
+        result.status.error_code = "UNAUTHORIZED";
 
         return result;
     }
@@ -689,7 +689,7 @@ ManagerSimulateCheckResult AdminManager::SimulateCheck(const ManagerSimulateChec
 
     const std::string& deny_code = result.simulation_result.deny_code;
 
-    if(deny_code == "INCALID_ARGUMENT" || deny_code == "APP_NOT_FOUND" || deny_code == "APP_DISABLED" || deny_code == "PERMISSION_NOT_FOUND" || deny_code == "RESOURCE_NOT_FOUND" || deny_code == "INTERNAL_ERROR" || deny_code == "NOT_FOUND") {
+    if(deny_code == "INVALID_ARGUMENT" || deny_code == "APP_NOT_FOUND" || deny_code == "APP_DISABLED" || deny_code == "PERMISSION_NOT_FOUND" || deny_code == "RESOURCE_NOT_FOUND" || deny_code == "INTERNAL_ERROR" || deny_code == "NOT_FOUND") {
 
         result.status.success =false;
         result.status.message = result.simulation_result.reason.empty() ? "模拟检查失败" : result.simulation_result.reason;
@@ -717,7 +717,7 @@ ManagerListAuditLogsResult AdminManager::ListAuditLogs(const ManagerListAuditLog
 
         result.status.success = false;
         result.status.message = "系统内部错误：AdminDAO 未初始化";
-        result.status.error_code = "INTERNAL_ERROE";
+        result.status.error_code = "INTERNAL_ERROR";
 
         return result;
     }
@@ -728,7 +728,7 @@ ManagerListAuditLogsResult AdminManager::ListAuditLogs(const ManagerListAuditLog
 
         result.status.success = false;
         result.status.message = "登录状态无效或已过期";
-        result.status.error_code = "UNAUTHRIZED";
+        result.status.error_code = "UNAUTHORIZED";
 
         return result;
     }
