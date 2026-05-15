@@ -1,0 +1,285 @@
+// 使用 proto3 语法
+syntax = "proto3";
+
+// Agent / Sidecar 服务包名
+package ny.agent;
+
+// 生成 C++ service 基类
+option cc_generic_services = true;
+
+// 复用 auth.proto 里的 DecisionTrace 和 DenyCode
+import "auth.proto";
+
+// ============================================================
+// Agent 侧统一错误码
+// 作用：描述快照拉取 / 激活 / 本地判权时的“操作层错误”
+// ============================================================
+enum AgentErrorCode {
+  // 默认值，未指定
+  AGENT_ERROR_CODE_UNSPECIFIED = 0;
+
+  // 成功
+  AGENT_ERROR_CODE_OK = 1;
+
+  // 参数错误
+  AGENT_ERROR_CODE_INVALID_ARGUMENT = 2;
+
+  // 资源不存在
+  AGENT_ERROR_CODE_NOT_FOUND = 3;
+
+  // 当前本地没有可用快照
+  AGENT_ERROR_CODE_SNAPSHOT_NOT_READY = 4;
+
+  // 系统内部错误
+  AGENT_ERROR_CODE_INTERNAL_ERROR = 5;
+}
+
+// ============================================================
+// 统一操作状态
+// ============================================================
+message AgentOperationStatus {
+  // 是否成功
+  bool success = 1;
+
+  // 可读提示
+  string message = 2;
+
+  // 错误码
+  AgentErrorCode error_code = 3;
+}
+
+// ============================================================
+// 快照内容载体
+// 作用：表示一份“可被 Agent 拉取 / 激活”的快照
+// ============================================================
+message SnapshotPayload {
+  // 快照表主键 id
+  int64 snapshot_id = 1;
+
+  // 所属应用
+  string app_code = 2;
+
+  // 对应策略版本号
+  int32 policy_version = 3;
+
+  // 发布人
+  string published_by = 4;
+
+  // 发布说明
+  string publish_note = 5;
+
+  // 快照创建时间
+  string created_at = 6;
+
+  // 快照 JSON 正文
+  string snapshot_json = 7;
+
+  // 为了调试和状态展示，额外返回一些摘要计数
+  int32 role_count = 8;
+  int32 permission_count = 9;
+  int32 role_permission_binding_count = 10;
+  int32 user_role_binding_count = 11;
+  int32 resource_owner_count = 12;
+}
+
+// ============================================================
+// 当前本地快照状态
+// 作用：描述 LocalSnapshotEngine 当前加载状态
+// ============================================================
+message LocalSnapshotStatus {
+  // 当前是否已有可用快照
+  bool has_snapshot = 1;
+
+  // 当前快照所属 app
+  string app_code = 2;
+
+  // 当前快照 id
+  int64 snapshot_id = 3;
+
+  // 当前策略版本
+  int32 policy_version = 4;
+
+  // 当前快照来源文本
+  // 固定可写 LOCAL_SNAPSHOT
+  string source_text = 5;
+}
+
+// ============================================================
+// 拉取最新快照
+// ============================================================
+message PullLatestSnapshotRequest {
+  // 要拉哪个 app 的快照
+  string app_code = 1;
+}
+
+message PullLatestSnapshotResponse {
+  // 操作状态
+  AgentOperationStatus status = 1;
+
+  // 拉到的快照
+  SnapshotPayload snapshot = 2;
+}
+
+// ============================================================
+// 按版本拉取快照
+// ============================================================
+message PullSnapshotByVersionRequest {
+  // app_code
+  string app_code = 1;
+
+  // 指定策略版本号
+  int32 policy_version = 2;
+}
+
+message PullSnapshotByVersionResponse {
+  // 操作状态
+  AgentOperationStatus status = 1;
+
+  // 拉到的快照
+  SnapshotPayload snapshot = 2;
+}
+
+// ============================================================
+// 激活最新快照
+// 作用：
+// 1. 从数据库读取某个 app 的最新快照
+// 2. 反序列化
+// 3. 建立索引
+// 4. 加载到 LocalSnapshotEngine
+// ============================================================
+message ActivateLatestSnapshotRequest {
+  // 要激活哪个 app 的最新快照
+  string app_code = 1;
+}
+
+message ActivateLatestSnapshotResponse {
+  // 操作状态
+  AgentOperationStatus status = 1;
+
+  // 激活后的快照
+  SnapshotPayload snapshot = 2;
+}
+
+// ============================================================
+// 激活指定版本快照
+// ============================================================
+message ActivateSnapshotByVersionRequest {
+  // app_code
+  string app_code = 1;
+
+  // 指定版本
+  int32 policy_version = 2;
+}
+
+message ActivateSnapshotByVersionResponse {
+  // 操作状态
+  AgentOperationStatus status = 1;
+
+  // 激活后的快照
+  SnapshotPayload snapshot = 2;
+}
+
+// ============================================================
+// 查询当前本地快照状态
+// ============================================================
+message GetLocalSnapshotStatusRequest {}
+
+message GetLocalSnapshotStatusResponse {
+  // 操作状态
+  AgentOperationStatus status = 1;
+
+  // 当前本地快照状态
+  LocalSnapshotStatus snapshot_status = 2;
+}
+
+// ============================================================
+// 本地快照判权
+// 作用：
+// 基于当前已加载的本地快照做一次判权
+// ============================================================
+message LocalCheckRequest {
+  // app_code
+  string app_code = 1;
+
+  // user_id
+  string user_id = 2;
+
+  // perm_key
+  string perm_key = 3;
+
+  // resource_type（可选）
+  string resource_type = 4;
+
+  // resource_id（可选）
+  string resource_id = 5;
+
+  // 请求追踪 id
+  string request_id = 6;
+}
+
+message LocalCheckResponse {
+  // 操作状态：
+  // - status.success = false 表示本地快照未准备好 / 参数不合法 / 内部错误
+  // - status.success = true  表示本地判权已执行完成，具体允许与否看 allowed
+  AgentOperationStatus status = 1;
+
+  // 最终是否允许
+  bool allowed = 2;
+
+  // 可读原因
+  string reason = 3;
+
+  // 当前角色
+  repeated string current_roles = 4;
+
+  // 建议角色
+  repeated string suggest_roles = 5;
+
+  // 复用 auth.proto 的解释结构
+  ny.auth.DecisionTrace trace = 6;
+
+  // 复用 auth.proto 的拒绝码
+  ny.auth.DenyCode deny_code = 7;
+
+  // 当前本地快照 id
+  int64 snapshot_id = 8;
+
+  // 当前本地策略版本
+  int32 policy_version = 9;
+
+  // 当前判权来源文本
+  string decision_source_text = 10;
+}
+
+// ============================================================
+// AgentService
+// 作用：
+// 1. 提供快照拉取接口
+// 2. 提供快照激活接口
+// 3. 提供本地快照判权接口
+// ============================================================
+service AgentService {
+  // 拉取最新快照
+  rpc PullLatestSnapshot(PullLatestSnapshotRequest)
+      returns (PullLatestSnapshotResponse);
+
+  // 拉取指定版本快照
+  rpc PullSnapshotByVersion(PullSnapshotByVersionRequest)
+      returns (PullSnapshotByVersionResponse);
+
+  // 激活最新快照
+  rpc ActivateLatestSnapshot(ActivateLatestSnapshotRequest)
+      returns (ActivateLatestSnapshotResponse);
+
+  // 激活指定版本快照
+  rpc ActivateSnapshotByVersion(ActivateSnapshotByVersionRequest)
+      returns (ActivateSnapshotByVersionResponse);
+
+  // 查询当前本地快照状态
+  rpc GetLocalSnapshotStatus(GetLocalSnapshotStatusRequest)
+      returns (GetLocalSnapshotStatusResponse);
+
+  // 基于当前本地快照执行本地判权
+  rpc LocalCheck(LocalCheckRequest)
+      returns (LocalCheckResponse);
+}
