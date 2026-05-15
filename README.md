@@ -59,7 +59,61 @@ git clone https://github.com/nianYo/ny_auth.git
 cd ny_auth
 ```
 
-### 2. 准备数据库
+### 2. 准备数据库（推荐 Docker 一键启动 MySQL）
+
+项目已提供 `compose.yaml`。MySQL 容器首次启动时会自动按顺序执行：
+
+1. `sql/init.sql`
+2. `sql/v2_alter.sql`
+3. `sql/v3_alter.sql`
+
+默认配置与服务启动参数保持一致：
+
+| 配置 | 默认值 |
+|---|---|
+| MySQL 容器名 | `ny_auth_mysql` |
+| 本机端口 | `3306` |
+| root 密码 | `123456` |
+| 数据库 | `ny_auth` |
+
+启动 MySQL：
+
+```bash
+cp .env.example .env
+docker compose up -d mysql
+```
+
+确认 MySQL 已就绪：
+
+```bash
+docker compose ps
+docker compose exec mysql mysql -uroot -p123456 -e "SHOW DATABASES;"
+```
+
+如果需要查看初始化后的表：
+
+```bash
+docker compose exec mysql mysql -uroot -p123456 ny_auth -e "SHOW TABLES;"
+```
+
+如果你修改了 `sql/*.sql` 并希望重新初始化数据库，需要删除旧数据卷后再启动：
+
+```bash
+docker compose down -v
+docker compose up -d mysql
+```
+
+> 注意：`docker compose down -v` 会删除本地 MySQL 数据卷，只适合开发和测试环境使用。
+
+如果本机 `3306` 端口已经被占用，可以修改 `.env`：
+
+```bash
+MYSQL_PORT=3307
+```
+
+之后启动服务时同步改成 `--db_port=3307`。
+
+#### 手动 MySQL 初始化方式
 
 项目默认使用 MySQL。初始化脚本会创建 `ny_auth` 数据库、基础 RBAC 表、资源表、策略版本表和决策日志表，并写入一批测试数据。
 
@@ -73,6 +127,12 @@ mysql -u root -p < sql/init.sql
 
 ```bash
 mysql -u root -p < sql/v2_alter.sql
+```
+
+启用 V3 Agent / Sidecar 快照能力时，继续执行升级脚本：
+
+```bash
+mysql -u root -p < sql/v3_alter.sql
 ```
 
 V2 脚本会创建：
@@ -134,13 +194,21 @@ protoc -I=proto --cpp_out=src proto/auth.proto
 
 ### 5. 启动服务
 
+如果使用上面的 Docker MySQL 默认配置，可以直接启动：
+
+```bash
+./auth_server
+```
+
+或者显式指定参数：
+
 ```bash
 ./auth_server \
   --port=8001 \
   --db_host=127.0.0.1 \
   --db_port=3306 \
   --db_user=root \
-  --db_password=your_password \
+  --db_password=123456 \
   --db_name=ny_auth \
   --cache_ttl=60 \
   --admin_session_ttl=3600
@@ -385,4 +453,3 @@ src/simulation_engine.cpp
 ```
 
 同时确认对应头文件位于 include path 中。
-

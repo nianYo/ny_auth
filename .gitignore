@@ -1,0 +1,4 @@
+build/
+.env
+*.log
+rpc_data/
