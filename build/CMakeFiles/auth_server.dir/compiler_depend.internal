@@ -620,6 +620,9 @@ CMakeFiles/auth_server.dir/src/admin_manager.cpp.o
  /home/nianyou/use/ny_auth/include/permission_dao.h
  /home/nianyou/use/ny_auth/include/session_types.h
  /home/nianyou/use/ny_auth/include/simulation_engine.h
+ /home/nianyou/use/ny_auth/include/snapshot_builder.h
+ /home/nianyou/use/ny_auth/include/snapshot_dao.h
+ /home/nianyou/use/ny_auth/include/snapshot_types.h
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
  /usr/include/asm-generic/errno.h
@@ -956,6 +959,9 @@ CMakeFiles/auth_server.dir/src/admin_service_impl.cpp.o
  /home/nianyou/use/ny_auth/include/permission_dao.h
  /home/nianyou/use/ny_auth/include/session_types.h
  /home/nianyou/use/ny_auth/include/simulation_engine.h
+ /home/nianyou/use/ny_auth/include/snapshot_builder.h
+ /home/nianyou/use/ny_auth/include/snapshot_dao.h
+ /home/nianyou/use/ny_auth/include/snapshot_types.h
  /home/nianyou/use/ny_auth/src/admin.pb.h
  /home/nianyou/use/ny_auth/src/auth.pb.h
  /usr/include/alloca.h

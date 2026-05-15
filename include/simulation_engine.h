@@ -119,7 +119,7 @@ struct SimulationResult {
 // 特别说明：
 // - 它不会写正式数据库
 // - 它不会污染运行时缓存
-// - 它只服务于 V2 管理端的 SimulateCheck
+// - 它只服务于管理端的 SimulateCheck
 // ======================================================
 class SimulationEngine {
 public:

@@ -161,7 +161,7 @@ struct SnapshotMeta {
 // PolicySnapshot
 // 作用：表示“一整份策略快照”
 //
-// 这是 V3 最核心的数据结构。
+// 这是快照体系最核心的数据结构。
 // 后面：
 // - SnapshotBuilder 负责构造它
 // - SnapshotDAO 负责读写它

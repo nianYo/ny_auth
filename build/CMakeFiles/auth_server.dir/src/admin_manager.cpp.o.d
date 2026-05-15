@@ -242,6 +242,9 @@ CMakeFiles/auth_server.dir/src/admin_manager.cpp.o: \
  /usr/include/c++/13/bits/unordered_set.h \
  /home/nianyou/use/ny_auth/include/permission_dao.h \
  /usr/include/c++/13/utility /usr/include/c++/13/bits/stl_relops.h \
+ /home/nianyou/use/ny_auth/include/snapshot_builder.h \
+ /home/nianyou/use/ny_auth/include/snapshot_types.h \
+ /home/nianyou/use/ny_auth/include/snapshot_dao.h \
  /usr/include/c++/13/random /usr/include/c++/13/cmath /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \

@@ -12,7 +12,7 @@ AdminDAO::AdminDAO(const std::string& host, int port, const std::string& user, c
 // ======================================================
 // createConnection
 // 作用：创建一个新的 MySQL 数据库连接
-// 当前 V2 仍然采用“每次查询新建连接”的简单模式
+// 当前仍然采用“每次查询新建连接”的简单模式
 // ======================================================
 sql::Connection* AdminDAO::createConnection() {
     

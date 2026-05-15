@@ -68,26 +68,26 @@ set(PROTO_HDRS
 # 可执行程序：auth_server
 #
 # 现在它同时包含：
-# - V1 中心鉴权服务
-# - V2 管理端服务
-# - V3 Agent / Sidecar 服务
+# - 中心鉴权服务
+# - 管理端服务
+# - Agent / Sidecar 服务
 # =========================================================
 add_executable(auth_server
     # main
     src/server_main.cpp
 
-    # ==================== V1 ====================
+    # 中心鉴权
     src/permission_dao.cpp
     src/decision_engine.cpp
     src/auth_service_impl.cpp
 
-    # ==================== V2 ====================
+    # 管理端
     src/admin_dao.cpp
     src/simulation_engine.cpp
     src/admin_manager.cpp
     src/admin_service_impl.cpp
 
-    # ==================== V3 ====================
+    # Agent / Sidecar
     src/snapshot_dao.cpp
     src/snapshot_builder.cpp
     src/local_snapshot_engine.cpp

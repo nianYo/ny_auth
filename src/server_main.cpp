@@ -16,7 +16,7 @@
 // 引入缓存
 #include "local_cache.h"
 
-// ====================== V1 ======================
+// ====================== 中心鉴权 ======================
 // 引入运行时 DAO
 #include "permission_dao.h"
 
@@ -26,7 +26,7 @@
 // 引入运行时 RPC 服务
 #include "auth_service_impl.h"
 
-// ====================== V2 ======================
+// ====================== 管理端 ======================
 // 引入管理员会话结构
 #include "session_types.h"
 
@@ -42,7 +42,7 @@
 // 引入管理端 RPC 服务
 #include "admin_service_impl.h"
 
-// ====================== V3 ======================
+// ====================== Agent / Sidecar ======================
 // 引入快照 DAO
 #include "snapshot_dao.h"
 
@@ -83,7 +83,7 @@ DEFINE_int32(cache_ttl, 60, "runtime permission cache ttl in seconds");
 // 管理员登录 session TTL（秒）
 DEFINE_int32(admin_session_ttl, 3600, "admin session ttl in seconds");
 
-// V3：是否在启动时自动加载某个 app 的最新快照
+// 是否在启动时自动加载某个 app 的最新快照
 // 为空表示不自动加载
 DEFINE_string(agent_bootstrap_app_code, "",
               "app_code to auto-load latest snapshot into LocalSnapshotEngine on startup");
@@ -97,31 +97,31 @@ int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
     // --------------------------------------------------
-    // V1：运行时权限缓存类型
+    // 运行时权限缓存类型
     // value = 用户权限集合
     // --------------------------------------------------
     using UserPermSet = std::unordered_set<std::string>;
 
     // --------------------------------------------------
-    // V2：管理员登录 session 缓存类型
+    // 管理员登录 session 缓存类型
     // value = AdminSessionInfo
     // --------------------------------------------------
     using AdminSessionCache = LocalCache<AdminSessionInfo>;
 
     // ==================================================
-    // 1) 创建 V1 运行时权限缓存
+    // 1) 创建运行时权限缓存
     // ==================================================
     auto runtime_permission_cache =
         std::make_shared<LocalCache<UserPermSet>>();
 
     // ==================================================
-    // 2) 创建 V2 管理员 session 缓存
+    // 2) 创建管理员 session 缓存
     // ==================================================
     auto admin_session_cache =
         std::make_shared<AdminSessionCache>();
 
     // ==================================================
-    // 3) 创建 V1 运行时 DAO
+    // 3) 创建运行时 DAO
     // ==================================================
     auto permission_dao = std::make_shared<PermissionDAO>(
         FLAGS_db_host,
@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
     );
 
     // ==================================================
-    // 4) 创建 V2 管理端 DAO
+    // 4) 创建管理端 DAO
     // ==================================================
     auto admin_dao = std::make_shared<AdminDAO>(
         FLAGS_db_host,
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
     );
 
     // ==================================================
-    // 5) 创建 V3 快照 DAO
+    // 5) 创建快照 DAO
     // ==================================================
     auto snapshot_dao = std::make_shared<SnapshotDAO>(
         FLAGS_db_host,
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
     }
 
     // ==================================================
-    // 7) 创建 V1 决策引擎
+    // 7) 创建决策引擎
     // ==================================================
     auto decision_engine = std::make_shared<DecisionEngine>(
         runtime_permission_cache,
@@ -194,12 +194,12 @@ int main(int argc, char* argv[]) {
     );
 
     // ==================================================
-    // 8) 创建 V1 RPC 服务：AuthServiceImpl
+    // 8) 创建 RPC 服务：AuthServiceImpl
     // ==================================================
     AuthServiceImpl auth_service(decision_engine);
 
     // ==================================================
-    // 9) 创建 V2 模拟引擎
+    // 9) 创建模拟引擎
     // ==================================================
     auto simulation_engine = std::make_shared<SimulationEngine>(
         permission_dao,
@@ -207,7 +207,7 @@ int main(int argc, char* argv[]) {
     );
 
     // ==================================================
-    // 10) 创建 V3 快照构建器
+    // 10) 创建快照构建器
     // ==================================================
     auto snapshot_builder = std::make_shared<SnapshotBuilder>(
         FLAGS_db_host,
@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
     );
 
     // ==================================================
-    // 11) 创建 V2 管理逻辑层：AdminManager
+    // 11) 创建管理逻辑层：AdminManager
     // ==================================================
     auto admin_manager = std::make_shared<AdminManager>(
         admin_dao,
@@ -230,17 +230,17 @@ int main(int argc, char* argv[]) {
     );
 
     // ==================================================
-    // 12) 创建 V2 RPC 服务：AdminServiceImpl
+    // 12) 创建 RPC 服务：AdminServiceImpl
     // ==================================================
     AdminServiceImpl admin_service(admin_manager);
 
     // ==================================================
-    // 13) 创建 V3 本地快照判权引擎
+    // 13) 创建本地快照判权引擎
     // ==================================================
     auto local_snapshot_engine = std::make_shared<LocalSnapshotEngine>();
 
     // ==================================================
-    // 14) V3：可选的启动即加载快照
+    // 14) 可选的启动即加载快照
     //
     // 逻辑：
     // - 如果传了 --agent_bootstrap_app_code=xxx
@@ -272,7 +272,7 @@ int main(int argc, char* argv[]) {
     }
 
     // ==================================================
-    // 15) 创建 V3 Agent / Sidecar RPC 服务
+    // 15) 创建 Agent / Sidecar RPC 服务
     // ==================================================
     AgentServiceImpl agent_service(
         snapshot_dao,
@@ -286,7 +286,7 @@ int main(int argc, char* argv[]) {
     brpc::Server server;
 
     // --------------------------------------------------
-    // 注册 V1：运行时鉴权服务
+    // 注册运行时鉴权服务
     // --------------------------------------------------
     if (server.AddService(&auth_service, brpc::SERVER_DOESNT_OWN_SERVICE) != 0) {
         LOG(ERROR) << "AddService(AuthServiceImpl) 失败";
@@ -294,7 +294,7 @@ int main(int argc, char* argv[]) {
     }
 
     // --------------------------------------------------
-    // 注册 V2：管理端服务
+    // 注册管理端服务
     // --------------------------------------------------
     if (server.AddService(&admin_service, brpc::SERVER_DOESNT_OWN_SERVICE) != 0) {
         LOG(ERROR) << "AddService(AdminServiceImpl) 失败";
@@ -302,7 +302,7 @@ int main(int argc, char* argv[]) {
     }
 
     // --------------------------------------------------
-    // 注册 V3：Agent / Sidecar 服务
+    // 注册 Agent / Sidecar 服务
     // --------------------------------------------------
     if (server.AddService(&agent_service, brpc::SERVER_DOESNT_OWN_SERVICE) != 0) {
         LOG(ERROR) << "AddService(AgentServiceImpl) 失败";
@@ -322,7 +322,7 @@ int main(int argc, char* argv[]) {
     // ==================================================
     // 18) 打印启动成功日志
     // ==================================================
-    LOG(INFO) << "ny_auth V3 启动成功"
+    LOG(INFO) << "ny_auth 启动成功"
               << ", port=" << FLAGS_port
               << ", db_host=" << FLAGS_db_host
               << ", db_port=" << FLAGS_db_port

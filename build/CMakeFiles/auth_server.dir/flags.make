@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/nianyou/use/ny_auth/include -I/home/nianyou/use/ny_auth/src
 
-CXX_FLAGS = -std=gnu++17 -Wall -Wextra -Wpedantic
+CXX_FLAGS = -g -std=gnu++17 -Wall -Wextra -Wpedantic
 

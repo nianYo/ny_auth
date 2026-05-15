@@ -136,7 +136,7 @@ private:
 
     // 把 PolicySnapshot 转成 JSON 文本
     // 说明：
-    // - 当前 V3 第一版里，SnapshotDAO 查询接口返回的是结构化快照
+    // - 当前实现里，SnapshotDAO 查询接口返回的是结构化快照
     // - 但 agent.proto 的 SnapshotPayload 需要 snapshot_json
     // - 所以这里补一个 service 层可用的序列化函数
     std::string serializeSnapshotToJson(const PolicySnapshot& snapshot) const;

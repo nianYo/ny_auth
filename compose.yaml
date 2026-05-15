@@ -16,8 +16,6 @@ services:
     volumes:
       - ny_auth_mysql_data:/var/lib/mysql
       - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
-      - ./sql/v2_alter.sql:/docker-entrypoint-initdb.d/02-v2-alter.sql:ro
-      - ./sql/v3_alter.sql:/docker-entrypoint-initdb.d/03-v3-alter.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
       interval: 5s

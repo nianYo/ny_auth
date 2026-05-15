@@ -307,6 +307,9 @@ CMakeFiles/auth_server.dir/src/admin_service_impl.cpp.o: \
  /usr/include/cppconn/driver.h /usr/include/cppconn/connection.h \
  /home/nianyou/use/ny_auth/include/simulation_engine.h \
  /home/nianyou/use/ny_auth/include/permission_dao.h \
+ /home/nianyou/use/ny_auth/include/snapshot_builder.h \
+ /home/nianyou/use/ny_auth/include/snapshot_types.h \
+ /home/nianyou/use/ny_auth/include/snapshot_dao.h \
  /usr/include/brpc/closure_guard.h /usr/include/butil/macros.h \
  /usr/include/butil/compiler_specific.h /usr/include/butil/build_config.h \
  /usr/include/butil/string_printf.h /usr/include/brpc/controller.h \

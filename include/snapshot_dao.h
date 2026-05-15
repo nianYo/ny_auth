@@ -91,7 +91,7 @@ struct SnapshotPublishLogItem {
 
 // ======================================================
 // SnapshotDAO
-// 作用：V3 快照体系的数据访问层
+// 作用：快照体系的数据访问层
 //
 // 它负责：
 // 1. 快照写入
@@ -182,11 +182,11 @@ private:
     void setLastError(const std::string& error);
 
     // 把 PolicySnapshot 序列化成 JSON 字符串
-    // 当前 V3 第一版先手工拼简单 JSON，后面可以换真正 JSON 库
+    // 当前实现先手工拼简单 JSON，后面可以换真正 JSON 库
     std::string serializeSnapshotToJson(const PolicySnapshot& snapshot) const;
 
     // 把数据库中的一条快照记录反序列化成 PolicySnapshot
-    // 当前 V3 第一版先保留接口，cpp 里会实现一个“最低可用版本”
+    // 当前实现先保留接口，cpp 里会实现一个“最低可用版本”
     // 说明：
     // - 真正严谨的 JSON 解析，后面可以升级
     std::optional<PolicySnapshot> deserializeSnapshotFromJson(

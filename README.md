@@ -10,7 +10,7 @@
 - **可解释决策结果**：返回命中的角色、命中的权限、决策来源、策略版本和 trace 文本，方便排查权限问题。
 - **本地 TTL 缓存**：使用应用、用户、策略版本构造权限缓存 key，减少数据库查询。
 - **决策日志**：记录每次鉴权结果，便于追踪线上权限判断行为。
-- **管理端能力（V2）**：包含管理员登录、创建角色、创建权限、角色绑定权限、用户授权角色、设置资源 owner、发布策略、模拟鉴权和审计日志查询等接口。
+- **管理端能力**：包含管理员登录、创建角色、创建权限、角色绑定权限、用户授权角色、设置资源 owner、发布策略、模拟鉴权和审计日志查询等接口。
 
 ## 技术栈
 
@@ -35,8 +35,7 @@ ny_auth/
 ├── proto/
 │   └── auth.proto           # AuthService 鉴权接口定义
 ├── sql/
-│   ├── init.sql             # 基础表结构与测试数据
-│   └── v2_alter.sql         # V2 管理端表与审计日志表
+│   └── init.sql             # 完整表结构与测试数据
 └── src/                     # 业务实现与生成的 protobuf 文件
     ├── server_main.cpp
     ├── auth_service_impl.cpp
@@ -61,11 +60,9 @@ cd ny_auth
 
 ### 2. 准备数据库（推荐 Docker 一键启动 MySQL）
 
-项目已提供 `compose.yaml`。MySQL 容器首次启动时会自动按顺序执行：
+项目已提供 `compose.yaml`。MySQL 容器首次启动时会自动执行：
 
 1. `sql/init.sql`
-2. `sql/v2_alter.sql`
-3. `sql/v3_alter.sql`
 
 默认配置与服务启动参数保持一致：
 
@@ -115,7 +112,7 @@ MYSQL_PORT=3307
 
 #### 手动 MySQL 初始化方式
 
-项目默认使用 MySQL。初始化脚本会创建 `ny_auth` 数据库、基础 RBAC 表、资源表、策略版本表和决策日志表，并写入一批测试数据。
+项目默认使用 MySQL。初始化脚本会创建 `ny_auth` 数据库、基础 RBAC 表、资源表、策略版本表、决策日志表、管理端表、审计日志表和快照相关表，并写入一批测试数据。
 
 > 注意：`sql/init.sql` 会先删除同名旧表，适合本地开发和测试环境使用。生产环境请先备份数据。
 
@@ -123,22 +120,12 @@ MYSQL_PORT=3307
 mysql -u root -p < sql/init.sql
 ```
 
-启用 V2 管理端能力时，继续执行升级脚本：
-
-```bash
-mysql -u root -p < sql/v2_alter.sql
-```
-
-启用 V3 Agent / Sidecar 快照能力时，继续执行升级脚本：
-
-```bash
-mysql -u root -p < sql/v3_alter.sql
-```
-
-V2 脚本会创建：
+脚本会创建：
 
 - `ny_console_users`：管理端管理员账号表
 - `ny_audit_logs`：管理员配置变更审计日志表
+- `ny_policy_snapshots`：策略快照表
+- `ny_snapshot_publish_logs`：快照发布日志表
 
 开发环境默认管理员账号：
 
@@ -352,9 +339,9 @@ curl -X POST 'http://127.0.0.1:8001/ny.auth.AuthService/Check' \
 }
 ```
 
-## 管理端接口（V2）
+## 管理端接口
 
-V2 管理端服务提供以下能力：
+管理端服务提供以下能力：
 
 - `Login`：管理员登录
 - `CreateRole`：创建角色
@@ -394,12 +381,19 @@ curl -X POST 'http://127.0.0.1:8001/ny.admin.AdminService/Login' \
 | `ny_resources` | 资源与 owner 关系表 |
 | `ny_decision_logs` | 每次鉴权的决策日志 |
 
-V2 管理端表：
+管理端表：
 
 | 表名 | 说明 |
 |---|---|
 | `ny_console_users` | 管理端用户表 |
 | `ny_audit_logs` | 管理员配置变更审计日志表 |
+
+快照表：
+
+| 表名 | 说明 |
+|---|---|
+| `ny_policy_snapshots` | 策略快照表 |
+| `ny_snapshot_publish_logs` | 快照发布日志表 |
 
 ## 决策流程
 

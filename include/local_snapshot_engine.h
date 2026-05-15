@@ -51,7 +51,7 @@ struct LocalSnapshotCheckRequest {
 // 作用：表示一次“本地快照判权”的结果
 //
 // 设计思路：
-// - 尽量保留和 V1 / V2 相似的解释能力
+// - 尽量保留和中心鉴权、模拟鉴权相似的解释能力
 // - 但明确说明判权来源是 LOCAL_SNAPSHOT
 // ======================================================
 struct LocalSnapshotCheckResult {
@@ -106,7 +106,7 @@ struct LocalSnapshotCheckResult {
 
 // ======================================================
 // LocalSnapshotEngine
-// 作用：V3 本地快照判权引擎
+// 作用：本地快照判权引擎
 //
 // 它负责：
 // 1. 持有一份当前本地可用的 IndexedPolicySnapshot

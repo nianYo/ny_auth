@@ -617,6 +617,9 @@ CMakeFiles/auth_server.dir/src/admin_manager.cpp.o: /home/nianyou/use/ny_auth/sr
   /home/nianyou/use/ny_auth/include/permission_dao.h \
   /home/nianyou/use/ny_auth/include/session_types.h \
   /home/nianyou/use/ny_auth/include/simulation_engine.h \
+  /home/nianyou/use/ny_auth/include/snapshot_builder.h \
+  /home/nianyou/use/ny_auth/include/snapshot_dao.h \
+  /home/nianyou/use/ny_auth/include/snapshot_types.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
@@ -952,6 +955,9 @@ CMakeFiles/auth_server.dir/src/admin_service_impl.cpp.o: /home/nianyou/use/ny_au
   /home/nianyou/use/ny_auth/include/permission_dao.h \
   /home/nianyou/use/ny_auth/include/session_types.h \
   /home/nianyou/use/ny_auth/include/simulation_engine.h \
+  /home/nianyou/use/ny_auth/include/snapshot_builder.h \
+  /home/nianyou/use/ny_auth/include/snapshot_dao.h \
+  /home/nianyou/use/ny_auth/include/snapshot_types.h \
   /home/nianyou/use/ny_auth/src/admin.pb.h \
   /home/nianyou/use/ny_auth/src/auth.pb.h \
   /usr/include/alloca.h \
@@ -5608,10 +5614,6 @@ CMakeFiles/auth_server.dir/src/snapshot_dao.cpp.o: /home/nianyou/use/ny_auth/src
 
 /home/nianyou/use/ny_auth/src/auth.pb.cc:
 
-/home/nianyou/use/ny_auth/include/snapshot_types.h:
-
-/home/nianyou/use/ny_auth/include/snapshot_builder.h:
-
 /home/nianyou/use/ny_auth/include/local_snapshot_engine.h:
 
 /usr/include/google/protobuf/io/zero_copy_stream_impl.h:
@@ -5641,6 +5643,10 @@ CMakeFiles/auth_server.dir/src/snapshot_dao.cpp.o: /home/nianyou/use/ny_auth/src
 /usr/include/netinet/in.h:
 
 /usr/include/linux/stddef.h:
+
+/usr/include/linux/posix_types.h:
+
+/usr/include/google/protobuf/descriptor.pb.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
 
@@ -6090,8 +6096,6 @@ CMakeFiles/auth_server.dir/src/snapshot_dao.cpp.o: /home/nianyou/use/ny_auth/src
 
 /usr/include/c++/13/bits/ptr_traits.h:
 
-/usr/include/linux/posix_types.h:
-
 /usr/include/c++/13/bits/ostream_insert.h:
 
 /usr/include/c++/13/system_error:
@@ -6131,10 +6135,6 @@ CMakeFiles/auth_server.dir/src/snapshot_dao.cpp.o: /home/nianyou/use/ny_auth/src
 /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h:
 
 /usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
-
-/home/nianyou/use/ny_auth/include/snapshot_dao.h:
-
-/usr/include/c++/13/bits/shared_ptr.h:
 
 /usr/include/c++/13/debug/debug.h:
 
@@ -6222,6 +6222,8 @@ CMakeFiles/auth_server.dir/src/snapshot_dao.cpp.o: /home/nianyou/use/ny_auth/src
 
 /usr/include/google/protobuf/reflection_ops.h:
 
+/home/nianyou/use/ny_auth/include/snapshot_types.h:
+
 /usr/include/x86_64-linux-gnu/bits/getopt_posix.h:
 
 /usr/include/google/protobuf/stubs/stl_util.h:
@@ -6229,6 +6231,10 @@ CMakeFiles/auth_server.dir/src/snapshot_dao.cpp.o: /home/nianyou/use/ny_auth/src
 /usr/include/c++/13/bits/stl_map.h:
 
 /usr/include/c++/13/bits/stl_uninitialized.h:
+
+/usr/include/gflags/gflags_gflags.h:
+
+/usr/include/c++/13/bits/new_allocator.h:
 
 /usr/include/c++/13/bits/unordered_map.h:
 
@@ -6347,8 +6353,6 @@ CMakeFiles/auth_server.dir/src/snapshot_dao.cpp.o: /home/nianyou/use/ny_auth/src
 /usr/include/c++/13/bits/basic_string.tcc:
 
 /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
-
-/usr/include/google/protobuf/descriptor.pb.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
 
@@ -6551,6 +6555,12 @@ CMakeFiles/auth_server.dir/src/snapshot_dao.cpp.o: /home/nianyou/use/ny_auth/src
 /usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
 
 /home/nianyou/use/ny_auth/include/local_cache.h:
+
+/home/nianyou/use/ny_auth/include/snapshot_builder.h:
+
+/usr/include/c++/13/bits/shared_ptr.h:
+
+/home/nianyou/use/ny_auth/include/snapshot_dao.h:
 
 /usr/include/brpc/redis_reply.h:
 
@@ -6783,7 +6793,3 @@ CMakeFiles/auth_server.dir/src/snapshot_dao.cpp.o: /home/nianyou/use/ny_auth/src
 /usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
 
 /usr/include/gflags/gflags.h:
-
-/usr/include/c++/13/bits/new_allocator.h:
-
-/usr/include/gflags/gflags_gflags.h:

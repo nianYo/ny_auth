@@ -4,7 +4,7 @@
 -- 1. 支持基础 RBAC：用户 -> 角色 -> 权限
 -- 2. 支持资源 owner 快捷规则
 -- 3. 支持策略版本号
--- 4. 支持记录每次权限决策的日志
+-- 4. 支持记录每次权限决策的日志、管理端审计日志和策略快照
 -- =========================================================
 
 -- 如果数据库不存在，就创建数据库 ny_auth
@@ -18,6 +18,10 @@ USE ny_auth;
 -- 注意：这会删除旧数据
 -- =========================================================
 DROP TABLE IF EXISTS ny_decision_logs;
+DROP TABLE IF EXISTS ny_snapshot_publish_logs;
+DROP TABLE IF EXISTS ny_policy_snapshots;
+DROP TABLE IF EXISTS ny_audit_logs;
+DROP TABLE IF EXISTS ny_console_users;
 DROP TABLE IF EXISTS ny_resources;
 DROP TABLE IF EXISTS ny_user_roles;
 DROP TABLE IF EXISTS ny_role_permissions;
@@ -276,6 +280,140 @@ CREATE TABLE ny_decision_logs (
 );
 
 -- =========================================================
+-- 9) 管理员账号表 ny_console_users
+-- 作用：
+-- 管理端登录使用，不是业务系统普通用户
+-- =========================================================
+CREATE TABLE ny_console_users (
+
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    username VARCHAR(64) NOT NULL UNIQUE,
+
+    password_hash VARCHAR(255) NOT NULL,
+
+    display_name VARCHAR(64) DEFAULT '',
+
+    status TINYINT NOT NULL DEFAULT 1,
+
+    is_super_admin TINYINT NOT NULL DEFAULT 1,
+
+    last_login_at DATETIME NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =========================================================
+-- 10) 审计日志表 ny_audit_logs
+-- 作用：
+-- 记录管理员对权限策略做了什么修改
+-- 注意：
+-- 这和 ny_decision_logs 不一样
+-- - ny_decision_logs 记录“每次鉴权”
+-- - ny_audit_logs   记录“每次配置变更”
+-- =========================================================
+CREATE TABLE ny_audit_logs (
+
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    operator_user_id BIGINT NOT NULL,
+
+    operator_username VARCHAR(64) NOT NULL,
+
+    operator_display_name VARCHAR(64) DEFAULT '',
+
+    app_code VARCHAR(64) NOT NULL,
+
+    action_type VARCHAR(64) NOT NULL,
+
+    target_type VARCHAR(64) NOT NULL,
+
+    target_key VARCHAR(128) NOT NULL,
+
+    before_text TEXT,
+
+    after_text TEXT,
+
+    trace_text TEXT,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    KEY idx_audit_app_time (app_code, created_at),
+    KEY idx_audit_operator_time (operator_username, created_at),
+    KEY idx_audit_action_time (action_type, created_at)
+);
+
+-- =========================================================
+-- 11) 策略快照表 ny_policy_snapshots
+--
+-- 作用：
+-- 每次发布策略后，把“当时的完整只读策略视图”固化成一份快照。
+-- 后面本地 Agent 拉取的就是这里的数据。
+-- =========================================================
+CREATE TABLE ny_policy_snapshots (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    app_id BIGINT NOT NULL,
+
+    app_code VARCHAR(64) NOT NULL,
+
+    policy_version INT NOT NULL,
+
+    snapshot_json LONGTEXT NOT NULL,
+
+    status TINYINT NOT NULL DEFAULT 1,
+
+    published_by VARCHAR(64) DEFAULT '',
+
+    publish_note VARCHAR(255) DEFAULT '',
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uk_snapshot_app_version(app_id, policy_version),
+
+    KEY idx_snapshot_app_code_version(app_code, policy_version),
+    KEY idx_snapshot_app_status(app_id, status)
+);
+
+-- =========================================================
+-- 12) 快照发布日志表 ny_snapshot_publish_logs
+--
+-- 作用：
+-- 记录“哪次快照是怎么生成和发布的”
+--
+-- 注意：
+-- 这和 ny_audit_logs 不一样：
+-- - ny_audit_logs            记录管理员做了什么配置操作
+-- - ny_snapshot_publish_logs 记录快照构建/发布过程本身
+-- =========================================================
+CREATE TABLE ny_snapshot_publish_logs (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    app_id BIGINT NOT NULL,
+
+    app_code VARCHAR(64) NOT NULL,
+
+    policy_version INT NOT NULL,
+
+    snapshot_id BIGINT NOT NULL,
+
+    published_by VARCHAR(64) DEFAULT '',
+
+    publish_result VARCHAR(32) NOT NULL DEFAULT 'SUCCESS',
+
+    trace_text TEXT,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    KEY idx_snapshot_publish_app_version(app_code, policy_version),
+    KEY idx_snapshot_publish_result_time(publish_result, created_at)
+);
+
+-- =========================================================
 -- 下面开始插入测试数据
 -- 这部分很重要，因为没有测试数据，你后面没法调 Check 接口
 -- =========================================================
@@ -450,3 +588,57 @@ VALUES
     '样例日志：编辑者角色允许编辑文档',
     'seed example'
 );
+
+-- =========================================================
+-- 插入默认管理员账号
+-- 默认账号：
+--   username = admin
+--   password = admin123
+-- =========================================================
+INSERT INTO ny_console_users (
+    username,
+    password_hash,
+    display_name,
+    status,
+    is_super_admin
+)
+VALUES (
+    'admin',
+    'admin123',
+    '系统管理员',
+    1,
+    1
+);
+
+-- =========================================================
+-- 插入一条样例审计日志
+-- =========================================================
+INSERT INTO ny_audit_logs (
+    operator_user_id,
+    operator_username,
+    operator_display_name,
+    app_code,
+    action_type,
+    target_type,
+    target_key,
+    before_text,
+    after_text,
+    trace_text
+)
+VALUES (
+    1,
+    'admin',
+    '系统管理员',
+    'doc_center',
+    'INIT_AUDIT',
+    'system',
+    'bootstrap',
+    '',
+    'created ny_console_users and ny_audit_logs',
+    'seed audit log for bootstrap'
+);
+
+-- 注意：
+-- 不在 SQL 初始化阶段写入样例快照。
+-- 快照 JSON 必须由 SnapshotBuilder 从真实策略表生成，否则 Agent 激活后会拿到
+-- 缺少 roles / permissions / bindings / owners 的空壳快照。

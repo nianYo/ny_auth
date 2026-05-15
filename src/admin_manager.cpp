@@ -17,7 +17,7 @@ AdminManager::AdminManager(std::shared_ptr<AdminDAO> admin_dao, std::shared_ptr<
 // Login
 // 作用：管理员登录
 //
-// 当前 V2 第一版逻辑：
+// 当前登录逻辑：
 // 1. 校验用户名/密码非空
 // 2. 查管理员账号
 // 3. 检查账号状态
@@ -794,7 +794,7 @@ ManagerListAuditLogsResult AdminManager::ListAuditLogs(const ManagerListAuditLog
 // authenticateOperator
 // 作用：校验 operator_token，并返回操作者身份
 //
-// 当前 V2 第一版逻辑：
+// 当前认证逻辑：
 // 1. token 不能为空
 // 2. 必须有 session cache
 // 3. 从缓存中查 AdminSessionInfo
@@ -833,7 +833,7 @@ std::optional<OperatorIdentity> AdminManager::authenticateOperator(const std::st
 // authorizeOperator
 // 作用：校验操作者是否允许执行当前管理操作
 //
-// 当前 V2 第一版策略：
+// 当前授权策略：
 // authenticated 且 is_super_admin = true 才允许
 // ======================================================
 bool AdminManager::authorizeOperator(const OperatorIdentity& operator_identity) const {

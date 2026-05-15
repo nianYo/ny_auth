@@ -459,16 +459,16 @@ CMakeFiles/auth_server.dir/src/server_main.cpp.o: \
  /home/nianyou/use/ny_auth/include/admin_manager.h \
  /home/nianyou/use/ny_auth/include/session_types.h \
  /home/nianyou/use/ny_auth/include/simulation_engine.h \
+ /home/nianyou/use/ny_auth/include/snapshot_builder.h \
+ /home/nianyou/use/ny_auth/include/snapshot_types.h \
+ /home/nianyou/use/ny_auth/include/snapshot_dao.h \
  /home/nianyou/use/ny_auth/include/admin_service_impl.h \
  /home/nianyou/use/ny_auth/src/admin.pb.h \
  /home/nianyou/use/ny_auth/src/auth.pb.h \
  /home/nianyou/use/ny_auth/include/admin_manager.h \
  /home/nianyou/use/ny_auth/include/snapshot_dao.h \
- /home/nianyou/use/ny_auth/include/snapshot_types.h \
  /home/nianyou/use/ny_auth/include/snapshot_builder.h \
- /home/nianyou/use/ny_auth/include/snapshot_dao.h \
  /home/nianyou/use/ny_auth/include/local_snapshot_engine.h \
  /home/nianyou/use/ny_auth/include/agent_service_impl.h \
  /home/nianyou/use/ny_auth/src/agent.pb.h \
- /home/nianyou/use/ny_auth/include/snapshot_builder.h \
  /home/nianyou/use/ny_auth/include/local_snapshot_engine.h
