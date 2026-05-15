@@ -64,7 +64,7 @@ SimulationResult SimulationEngine::Simulate(const SimulationRequest& request) {
 
         result.allowed = false;
         result.reason = "应用已被禁用";
-        result.deny_code = "APP_DESABLED";
+        result.deny_code = "APP_DISABLED";
         result.trace_text = "simulation dailed: app disabled, app_code = " + request.app_code;
 
         return result;
@@ -80,7 +80,32 @@ SimulationResult SimulationEngine::Simulate(const SimulationRequest& request) {
         return result;
     }
 
+    const auto permission_info_opt = permission_dao_->getPermissionInfo(request.app_code, request.perm_key);
+    if(!permission_info_opt.has_value() || !permission_info_opt->enabled) {
+
+        result.allowed = false;
+        result.reason = "权限不存在";
+        result.deny_code = "PERMISSION_NOT_FOUND";
+        result.trace_text = "simulation failed: permission not found, perm_key = " + request.perm_key;
+
+        return result;
+    }
+
     if(!request.resource_type.empty() && !request.resource_id.empty()) {
+        const PermissionInfo permission_info = permission_info_opt.value();
+        if(!permission_info.resource_type.empty() &&
+           permission_info.resource_type != request.resource_type) {
+
+            result.allowed = false;
+            result.reason = "权限不适用于该资源类型";
+            result.deny_code = "PERMISSION_DENIED";
+            result.trace_text = "simulation failed: permission resource_type mismatch, perm_key = " +
+                                request.perm_key + ", permission_resource_type = " +
+                                permission_info.resource_type + ", request_resource_type = " +
+                                request.resource_type;
+
+            return result;
+        }
 
         auto resource_info_opt = permission_dao_->getResourceInfo(request.app_code, request.resource_type, request.resource_id);
 
@@ -105,75 +130,77 @@ SimulationResult SimulationEngine::Simulate(const SimulationRequest& request) {
 
             return result;
         }
+    }
 
-        for(const auto& grant : request.simulated_grants) {
+    for(const auto& grant : request.simulated_grants) {
 
-            if(grant.role_key.empty()) {
+        if(grant.user_id.empty() || grant.role_key.empty()) {
 
-                result.allowed = false;
-                result.reason = "模拟输入错误：simulated_grants 中 role_key 不能为空";
-                result.deny_code = "INVALID_ARGUMENT";
-                result.trace_text = "simulation validation failed: empty role_key in simulated_grants";
+            result.allowed = false;
+            result.reason = "模拟输入错误：simulated_grants 中 user_id / role_key 不能为空";
+            result.deny_code = "INVALID_ARGUMENT";
+            result.trace_text = "simulation validation failed: empty user_id or role_key in simulated_grants";
 
-                return result;
-            }
-
-            if(!admin_dao_->roleExists(request.app_code, grant.role_key)) {
-
-                result.allowed = false;
-                result.reason = "模拟输入引用了不存在的角色";
-                result.deny_code = "NOT_FOUND";
-                result.trace_text = "simulation validation failed: role not found, role_key = " + grant.role_key;
-
-                return result;
-            }
+            return result;
         }
 
-        for(const auto& binding : request.simulated_bindings) {
+        if(!admin_dao_->roleExists(request.app_code, grant.role_key)) {
 
-            if(binding.role_key.empty() || binding.perm_key.empty()) {
+            result.allowed = false;
+            result.reason = "模拟输入引用了不存在的角色";
+            result.deny_code = "NOT_FOUND";
+            result.trace_text = "simulation validation failed: role not found, role_key = " + grant.role_key;
 
-                result.allowed = false;
-                result.reason = "模拟输入错误：simulated_bindings 中 role_key / perm_key 不能为空";
-                result.deny_code = "INVALID_ARGUMENT";
-                result.trace_text = "simulation validation failed: empty role_key or perm_key in simulated_bindings";
-
-                return result;
-            }
-
-            if(!admin_dao_->roleExists(request.app_code, binding.role_key)) {
-
-                result.allowed = false;
-                result.reason = "模拟输入引用了不存在的角色";
-                result.deny_code = "NOT_FOUND";
-                result.trace_text = "simulation validation failed: role not found in simulated_bindings, role_key = " + binding.role_key;
-
-                return result;
-            }
-
-            if(!admin_dao_->permissionExists(request.app_code, binding.perm_key)) {
-
-                result.allowed = false;
-                result.reason = "模拟输入引用了不存在的权限";
-                result.deny_code = "NOT_FOUND";
-                result.trace_text = "simulation validation failed: permission not found in simulated_bindings, perm_key = " + binding.perm_key;
-
-                return result;
-            }
+            return result;
         }
-        for(const auto& owner_override : request.simulated_owner_overrides) {
+    }
 
-            if(owner_override.resource_type.empty() || owner_override.resource_id.empty() || owner_override.owner_user_id.empty()) {
+    for(const auto& binding : request.simulated_bindings) {
 
-                result.allowed = false;
-                result.reason = "模拟输入错误：simulated_owner_overrides 字段不完整";
-                result.deny_code = "INVALID_ARGUMENT";
-                result.trace_text = "simulation validation failed: invalid simulated_owner_overrides item";
+        if(binding.role_key.empty() || binding.perm_key.empty()) {
 
-                return result;
-            }
-            }
+            result.allowed = false;
+            result.reason = "模拟输入错误：simulated_bindings 中 role_key / perm_key 不能为空";
+            result.deny_code = "INVALID_ARGUMENT";
+            result.trace_text = "simulation validation failed: empty role_key or perm_key in simulated_bindings";
+
+            return result;
         }
+
+        if(!admin_dao_->roleExists(request.app_code, binding.role_key)) {
+
+            result.allowed = false;
+            result.reason = "模拟输入引用了不存在的角色";
+            result.deny_code = "NOT_FOUND";
+            result.trace_text = "simulation validation failed: role not found in simulated_bindings, role_key = " + binding.role_key;
+
+            return result;
+        }
+
+        if(!admin_dao_->permissionExists(request.app_code, binding.perm_key)) {
+
+            result.allowed = false;
+            result.reason = "模拟输入引用了不存在的权限";
+            result.deny_code = "NOT_FOUND";
+            result.trace_text = "simulation validation failed: permission not found in simulated_bindings, perm_key = " + binding.perm_key;
+
+            return result;
+        }
+    }
+
+    for(const auto& owner_override : request.simulated_owner_overrides) {
+
+        if(owner_override.resource_type.empty() || owner_override.resource_id.empty() || owner_override.owner_user_id.empty()) {
+
+            result.allowed = false;
+            result.reason = "模拟输入错误：simulated_owner_overrides 字段不完整";
+            result.deny_code = "INVALID_ARGUMENT";
+            result.trace_text = "simulation validation failed: invalid simulated_owner_overrides item";
+
+            return result;
+        }
+    }
+
     RoleSet effective_roles = buildEffectiveRoles(request, result);
 
     PermissionSet effective_permissions = buildEffectivePermssions(request, effective_roles, result);
@@ -386,7 +413,7 @@ bool SimulationEngine::tryOwnerShortcut(const SimulationRequest& request, Simula
 
         result.allowed = true;
         result.reason = "模拟结果：资源 owner 快捷规则允许访问";
-        result.deny_code.clear();
+        result.deny_code = "OK";
         result.owner_shortcut_used = true;
         result.matched_permissions.push_back(request.perm_key);
 
@@ -454,7 +481,7 @@ void SimulationEngine::evaluateByRbac(const SimulationRequest& request, const Ro
 
         result.allowed = true;
         result.reason = "模拟结果：角色权限允许访问";
-        result.deny_code.clear();
+        result.deny_code = "OK";
         result.matched_permissions.push_back(request.perm_key);
 
         for(const auto& role : candidate_roles) {

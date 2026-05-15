@@ -811,6 +811,11 @@ ny::admin::AdminErrorCode AdminServiceImpl::mapAdminErrorCodeToProto(const std::
 // ======================================================
 ny::auth::DenyCode AdminServiceImpl::mapDenyCodeToProto(const std::string& deny_code) const {
 
+    if(deny_code == "OK") {
+
+        return ny::auth::DENY_CODE_OK;
+    }
+
     if(deny_code == "APP_NOT_FOUND") {
 
         return ny::auth::DENY_CODE_APP_NOT_FOUND;

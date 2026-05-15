@@ -261,6 +261,52 @@ bool PermissionDAO::permissionExists(const std::string& app_code, const std::str
 }
 
 // ======================================================
+// getPermissionInfo
+// 作用：查询某个权限的基础信息
+// ======================================================
+std::optional<PermissionInfo> PermissionDAO::getPermissionInfo(const std::string& app_code, const std::string& perm_key) {
+    try {
+        std::unique_ptr<sql::Connection> conn(createConnection());
+
+        std::unique_ptr<sql::PreparedStatement> stmt(
+            conn->prepareStatement(
+                "SELECT p.id, p.perm_key, p.resource_type, "
+                "       p.owner_shortcut_enabled, p.status "
+                "FROM ny_apps a "
+                "JOIN ny_permissions p ON p.app_id = a.id "
+                "WHERE a.app_code = ? "
+                "  AND a.status = 1 "
+                "  AND p.perm_key = ? "
+                "LIMIT 1"
+            )
+        );
+
+        stmt->setString(1, app_code);
+        stmt->setString(2, perm_key);
+
+        std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery());
+        if (!rs->next()) {
+            return std::nullopt;
+        }
+
+        PermissionInfo info;
+        info.permission_id = rs->getInt64("id");
+        info.perm_key = rs->getString("perm_key");
+        info.resource_type = rs->getString("resource_type");
+        info.owner_shortcut_enabled = (rs->getInt("owner_shortcut_enabled") == 1);
+        info.enabled = (rs->getInt("status") == 1);
+
+        return info;
+    } catch (const sql::SQLException& e) {
+        setLastError(e.what());
+        return std::nullopt;
+    } catch (const std::exception& e) {
+        setLastError(e.what());
+        return std::nullopt;
+    }
+}
+
+// ======================================================
 // getResourceInfo
 // 作用：查询某个具体资源的信息
 //

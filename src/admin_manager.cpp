@@ -11,6 +11,8 @@
 // ======================================================
 AdminManager::AdminManager(std::shared_ptr<AdminDAO> admin_dao, std::shared_ptr<SimulationEngine> simulation_engine, std::shared_ptr<SessionCache> session_cache, int session_ttl_seconds) : admin_dao_(std::move(admin_dao)), simulation_engine_(std::move(simulation_engine)), session_cache_(std::move(session_cache)), session_ttl_seconds_(session_ttl_seconds > 0 ? session_ttl_seconds : 3600) {}
 
+AdminManager::AdminManager(std::shared_ptr<AdminDAO> admin_dao, std::shared_ptr<SimulationEngine> simulation_engine, std::shared_ptr<SessionCache> session_cache, int session_ttl_seconds, std::shared_ptr<SnapshotBuilder> snapshot_builder) : admin_dao_(std::move(admin_dao)), simulation_engine_(std::move(simulation_engine)), snapshot_builder_(std::move(snapshot_builder)), session_cache_(std::move(session_cache)), session_ttl_seconds_(session_ttl_seconds > 0 ? session_ttl_seconds : 3600) {}
+
 // ======================================================
 // Login
 // 作用：管理员登录
@@ -620,6 +622,35 @@ ManagerPublishPolicyResult AdminManager::PublishPolicy(const ManagerPublishPolic
         result.status.error_code = "INTERNAL_ERROR";
 
         return result;
+    }
+
+    if(snapshot_builder_) {
+        const SnapshotBuildResult snapshot_result =
+            snapshot_builder_->BuildAndStoreSnapshot(
+                request.app_code,
+                operator_identity.username,
+                request.publish_note
+            );
+
+        if(!snapshot_result.status.success) {
+
+            result.status.success = false;
+            result.status.message = "发布策略版本成功，但构建快照失败：" + snapshot_result.status.message;
+            result.status.error_code = snapshot_result.status.error_code.empty() ? "INTERNAL_ERROR" : snapshot_result.status.error_code;
+            result.new_policy_version = new_version;
+
+            std::ostringstream before_text;
+            before_text << "policy_version = " << old_version;
+
+            std::ostringstream after_text;
+            after_text << "policy_version = " << new_version
+                       << ", publish_note = " << request.publish_note
+                       << ", snapshot_error = " << snapshot_result.status.message;
+
+            writeAuditLog(operator_identity, request.app_code, "PUBLISH_POLICY_SNAPSHOT_FAILED", "policy", request.app_code, before_text.str(), after_text.str(), "published policy version but failed to build snapshot");
+
+            return result;
+        }
     }
 
     result.status.success = true;

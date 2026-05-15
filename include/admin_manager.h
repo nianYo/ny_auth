@@ -19,6 +19,8 @@
 
 #include "simulation_engine.h"
 
+#include "snapshot_builder.h"
+
 // ======================================================
 // AdminOperationStatus
 // 作用：统一表示管理操作结果状态
@@ -101,7 +103,7 @@ struct ManagerCreatePermissionResult {
 
     AdminOperationStatus status;
 
-    int64_t permission_id;
+    int64_t permission_id = 0;
 };
 
 // ======================================================
@@ -245,6 +247,8 @@ public:
 
     AdminManager(std::shared_ptr<AdminDAO> admin_dao, std::shared_ptr<SimulationEngine> simulation_engine, std::shared_ptr<SessionCache> session_cache, int session_ttl_seconds);
 
+    AdminManager(std::shared_ptr<AdminDAO> admin_dao, std::shared_ptr<SimulationEngine> simulation_engine, std::shared_ptr<SessionCache> session_cache, int session_ttl_seconds, std::shared_ptr<SnapshotBuilder> snapshot_builder);
+
     ManagerLoginResult Login(const ManagerLoginRequest& request);
 
     ManagerCreateRoleResult CreateRole(const ManagerCreateRoleRequest& request);
@@ -284,6 +288,8 @@ private:
     std::shared_ptr<AdminDAO> admin_dao_;
 
     std::shared_ptr<SimulationEngine> simulation_engine_;
+
+    std::shared_ptr<SnapshotBuilder> snapshot_builder_;
 
     std::shared_ptr<SessionCache> session_cache_;
 

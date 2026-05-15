@@ -110,72 +110,7 @@ CREATE TABLE IF NOT EXISTS ny_snapshot_publish_logs (
     KEY idx_snapshot_publish_result_time(publish_result, created_at)
 );
 
--- =========================================================
--- 3) 插入一条 V3 初始化样例快照（可选）
---
--- 说明：
--- 这不是必须的，但方便你后面先看表结构和查询效果。
--- 真正的快照内容，后续会由 SnapshotBuilder 自动构建。
--- =========================================================
-INSERT INTO ny_policy_snapshots (
-    app_id,
-    app_code,
-    policy_version,
-    snapshot_json,
-    status,
-    published_by,
-    publish_note
-)
-SELECT
-    a.id,
-    a.app_code,
-    pv.current_version,
-    CONCAT(
-        '{',
-        '"app_code":"', a.app_code, '",',
-        '"policy_version":', pv.current_version, ',',
-        '"note":"bootstrap snapshot for v3"',
-        '}'
-    ),
-    1,
-    'system',
-    'bootstrap snapshot'
-FROM ny_apps a
-JOIN ny_policy_versions pv ON pv.app_id = a.id
-WHERE a.app_code = 'doc_center'
-ON DUPLICATE KEY UPDATE
-    snapshot_json = VALUES(snapshot_json),
-    status = VALUES(status),
-    published_by = VALUES(published_by),
-    publish_note = VALUES(publish_note);
-
--- =========================================================
--- 4) 给上面的样例快照写一条发布日志（可选）
--- =========================================================
-INSERT INTO ny_snapshot_publish_logs (
-    app_id,
-    app_code,
-    policy_version,
-    snapshot_id,
-    published_by,
-    publish_result,
-    trace_text
-)
-SELECT
-    s.app_id,
-    s.app_code,
-    s.policy_version,
-    s.id,
-    'system',
-    'SUCCESS',
-    'bootstrap snapshot publish log for v3'
-FROM ny_policy_snapshots s
-WHERE s.app_code = 'doc_center'
-  AND s.policy_version = (
-      SELECT pv.current_version
-      FROM ny_policy_versions pv
-      JOIN ny_apps a ON a.id = pv.app_id
-      WHERE a.app_code = 'doc_center'
-      LIMIT 1
-  )
-LIMIT 1;
+-- 注意：
+-- 不在 SQL 初始化阶段写入样例快照。
+-- 快照 JSON 必须由 SnapshotBuilder 从真实策略表生成，否则 Agent 激活后会拿到
+-- 缺少 roles / permissions / bindings / owners 的空壳快照。

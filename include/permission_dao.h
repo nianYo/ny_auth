@@ -55,6 +55,22 @@ struct ResourceInfo {
 };
 
 // ======================================================
+// PermissionInfo：表示一个权限的基础信息
+// ======================================================
+struct PermissionInfo {
+
+    int64_t permission_id = 0;
+
+    std::string perm_key;
+
+    std::string resource_type;
+
+    bool owner_shortcut_enabled = false;
+
+    bool enabled = false;
+};
+
+// ======================================================
 // ResourceInfo：表示一个资源的基础信息
 // ======================================================
 struct DecisionLogRecord {
@@ -108,6 +124,8 @@ public:
     std::vector<std::string> getRolesWithPermission(const std::string& app_code, const std::string& perm_key);
 
     bool permissionExists(const std::string& app_code, const std::string& perm_key);
+
+    std::optional<PermissionInfo> getPermissionInfo(const std::string& app_code, const std::string& perm_key);
 
     std::optional<ResourceInfo> getResourceInfo(const std::string& app_code, const std::string& resource_type, const std::string& resource_id);
 

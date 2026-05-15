@@ -72,6 +72,7 @@ void AuthServiceImpl::Check(google::protobuf::RpcController* cntl, const ny::aut
     brpc::ClosureGuard done_guard(done);
 
     brpc::Controller* brpc_cntl = static_cast<brpc::Controller*>(cntl);
+    (void)brpc_cntl;
 
     if(response == nullptr) {
         return ;
@@ -240,4 +241,3 @@ ny::auth::DenyCode AuthServiceImpl::mapDenyCodeToProto(const std::string& deny_c
 
     return ny::auth::DENY_CODE_UNSPECIFIED;
 }
-

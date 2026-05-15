@@ -82,11 +82,37 @@ DecisionResult DecisionEngine::Evaluate(const DecisionRequest& request) {
         return result;
     }
 
+    const auto permission_info_opt = dao_->getPermissionInfo(request.app_code, request.perm_key);
+    if(!permission_info_opt.has_value() || !permission_info_opt->enabled) {
+
+        result.allowed = false;
+        result.reason = "权限不存在";
+        result.deny_code = "PERMISSION_NOT_FOUND";
+        result.current_roles = dao_->getUserRoles(request.app_code, request.user_id);
+        result.trace_text = "permission not found, perm_key = " + request.perm_key;
+
+        return result;
+    }
+
     // --------------------------------------------------
     // 4) 如果请求里带了资源信息，就先检查资源是否存在、是否启用
     //    这样后面 owner 规则和 RBAC 都是在“资源有效”的前提下做判断
     // --------------------------------------------------
     if(!request.resource_type.empty() && !request.resource_id.empty()) {
+        const PermissionInfo permission_info = permission_info_opt.value();
+        if(!permission_info.resource_type.empty() &&
+           permission_info.resource_type != request.resource_type) {
+
+            result.allowed = false;
+            result.reason = "权限不适用于该资源类型";
+            result.deny_code = "PERMISSION_DENIED";
+            result.trace_text = "permission resource_type mismatch, perm_key = " +
+                                request.perm_key + ", permission_resource_type = " +
+                                permission_info.resource_type + ", request_resource_type = " +
+                                request.resource_type;
+
+            return result;
+        }
         
         auto resource_info_opt = dao_->getResourceInfo(request.app_code, request.resource_type, request.resource_id);
 

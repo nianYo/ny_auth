@@ -178,6 +178,19 @@ LocalSnapshotCheckResult LocalSnapshotEngine::Check(
 
     // 6) 如果带资源，则校验资源是否存在且启用
     if (!request.resource_type.empty() && !request.resource_id.empty()) {
+        if (!permission->resource_type.empty() &&
+            permission->resource_type != request.resource_type) {
+            result.allowed = false;
+            result.reason = "权限不适用于该资源类型";
+            result.deny_code = "PERMISSION_DENIED";
+            result.trace_text =
+                "local snapshot check failed: permission resource_type mismatch, perm_key=" +
+                request.perm_key + ", permission_resource_type=" +
+                permission->resource_type + ", request_resource_type=" +
+                request.resource_type;
+            return result;
+        }
+
         const std::string resource_key =
             BuildSnapshotResourceKey(request.resource_type, request.resource_id);
 

@@ -207,22 +207,7 @@ int main(int argc, char* argv[]) {
     );
 
     // ==================================================
-    // 10) 创建 V2 管理逻辑层：AdminManager
-    // ==================================================
-    auto admin_manager = std::make_shared<AdminManager>(
-        admin_dao,
-        simulation_engine,
-        admin_session_cache,
-        FLAGS_admin_session_ttl
-    );
-
-    // ==================================================
-    // 11) 创建 V2 RPC 服务：AdminServiceImpl
-    // ==================================================
-    AdminServiceImpl admin_service(admin_manager);
-
-    // ==================================================
-    // 12) 创建 V3 快照构建器
+    // 10) 创建 V3 快照构建器
     // ==================================================
     auto snapshot_builder = std::make_shared<SnapshotBuilder>(
         FLAGS_db_host,
@@ -232,6 +217,22 @@ int main(int argc, char* argv[]) {
         FLAGS_db_name,
         snapshot_dao
     );
+
+    // ==================================================
+    // 11) 创建 V2 管理逻辑层：AdminManager
+    // ==================================================
+    auto admin_manager = std::make_shared<AdminManager>(
+        admin_dao,
+        simulation_engine,
+        admin_session_cache,
+        FLAGS_admin_session_ttl,
+        snapshot_builder
+    );
+
+    // ==================================================
+    // 12) 创建 V2 RPC 服务：AdminServiceImpl
+    // ==================================================
+    AdminServiceImpl admin_service(admin_manager);
 
     // ==================================================
     // 13) 创建 V3 本地快照判权引擎

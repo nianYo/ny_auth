@@ -591,9 +591,15 @@ void AgentServiceImpl::fillLocalCheckResponse(
 
     const std::string& deny_code = result.deny_code;
 
-    if (deny_code == "SNAPSHOT_NOT_READY" ||
-        deny_code == "INVALID_ARGUMENT" ||
-        deny_code == "INTERNAL_ERROR") {
+    if (deny_code == "OK") {
+        fillAgentOperationStatus(
+            true,
+            "本地判权完成",
+            "OK",
+            response->mutable_status());
+    } else if (deny_code == "SNAPSHOT_NOT_READY" ||
+               deny_code == "INVALID_ARGUMENT" ||
+               deny_code == "INTERNAL_ERROR") {
         fillAgentOperationStatus(
             false,
             result.reason.empty() ? "本地判权失败" : result.reason,
@@ -674,7 +680,7 @@ ny::agent::AgentErrorCode AgentServiceImpl::mapAgentErrorCodeToProto(
 ny::auth::DenyCode AgentServiceImpl::mapLocalDenyCodeToProto(
     const std::string& deny_code) const {
     if (deny_code == "OK") {
-        return ny::auth::DENY_CODE_UNSPECIFIED;
+        return ny::auth::DENY_CODE_OK;
     }
     if (deny_code == "APP_NOT_FOUND") {
         return ny::auth::DENY_CODE_APP_NOT_FOUND;
