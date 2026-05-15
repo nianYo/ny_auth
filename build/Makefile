@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/nianyou/use/ny_auth/build
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
@@ -128,6 +138,19 @@ auth_server: cmake_check_build_system
 auth_server/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/auth_server.dir/build.make CMakeFiles/auth_server.dir/build
 .PHONY : auth_server/fast
+
+#=============================================================================
+# Target rules for targets named local_cache_test
+
+# Build rule for target.
+local_cache_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 local_cache_test
+.PHONY : local_cache_test
+
+# fast build rule for target.
+local_cache_test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/local_cache_test.dir/build.make CMakeFiles/local_cache_test.dir/build
+.PHONY : local_cache_test/fast
 
 src/admin.pb.o: src/admin.pb.cc.o
 .PHONY : src/admin.pb.o
@@ -489,6 +512,30 @@ src/snapshot_dao.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/auth_server.dir/build.make CMakeFiles/auth_server.dir/src/snapshot_dao.cpp.s
 .PHONY : src/snapshot_dao.cpp.s
 
+tests/local_cache_test.o: tests/local_cache_test.cpp.o
+.PHONY : tests/local_cache_test.o
+
+# target to build an object file
+tests/local_cache_test.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/local_cache_test.dir/build.make CMakeFiles/local_cache_test.dir/tests/local_cache_test.cpp.o
+.PHONY : tests/local_cache_test.cpp.o
+
+tests/local_cache_test.i: tests/local_cache_test.cpp.i
+.PHONY : tests/local_cache_test.i
+
+# target to preprocess a source file
+tests/local_cache_test.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/local_cache_test.dir/build.make CMakeFiles/local_cache_test.dir/tests/local_cache_test.cpp.i
+.PHONY : tests/local_cache_test.cpp.i
+
+tests/local_cache_test.s: tests/local_cache_test.cpp.s
+.PHONY : tests/local_cache_test.s
+
+# target to generate assembly for a file
+tests/local_cache_test.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/local_cache_test.dir/build.make CMakeFiles/local_cache_test.dir/tests/local_cache_test.cpp.s
+.PHONY : tests/local_cache_test.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -497,7 +544,9 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... auth_server"
+	@echo "... local_cache_test"
 	@echo "... src/admin.pb.o"
 	@echo "... src/admin.pb.i"
 	@echo "... src/admin.pb.s"
@@ -543,6 +592,9 @@ help:
 	@echo "... src/snapshot_dao.o"
 	@echo "... src/snapshot_dao.i"
 	@echo "... src/snapshot_dao.s"
+	@echo "... tests/local_cache_test.o"
+	@echo "... tests/local_cache_test.i"
+	@echo "... tests/local_cache_test.s"
 .PHONY : help
 
 
